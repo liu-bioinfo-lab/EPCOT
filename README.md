@@ -36,7 +36,7 @@ pip install gdown
 !gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output models/pretrain_dnase.pt
 ```
 
-For the trained downstream models and data used in downstream tasks, you can go to each correspoding directories [GEP/](https://github.com/zzh24zzh/EPCOT/tree/master/GEP), [COP/](https://github.com/zzh24zzh/EPCOT/tree/master/COP), and .
+For the trained downstream models and data used in downstream tasks, you can go to each correspoding directories [GEP/](https://github.com/zzh24zzh/EPCOT/tree/master/GEP), [COP/](https://github.com/zzh24zzh/EPCOT/tree/master/COP), and [EAP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EAP).
 
 ### EPCOT tutorial
 We prepare a Google Colab Notebook [EPCOT_usage.ipynb](https://github.com/zzh24zzh/EPCOT/blob/master/EPCOT_usage.ipynb) to introduce how to use EPCOT to predict multiple modalities and train logistic regression model using the predicted values of epigenomic features from the pre-training model.
