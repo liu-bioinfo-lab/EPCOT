@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Sequence binding patterns</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    </title>
+</head>
+<style>
+    ul.no-bullets {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    div {
+        font-size: medium;
+    }
+
+    .flexRow {
+        display: flex;
+        flex-direction: row;
+        /* flex-wrap: wrap; */
+        justify-content: space-between;
+        align-items: center;
+
+        /* for multiple line */
+        align-content: center;
+    }
+
+    .flexCol {
+        display: flex;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
+        justify-content: space-around;
+        align-items: center;
+
+        /* for multiple line */
+        align-content: center;
+
+        border: 1px;
+        border-style: dashed;
+
+        height: 200px;
+        margin: 5px;
+    }
+
+    .flexColPopup {
+        display: flex;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
+        justify-content: space-between;
+        align-items: center;
+
+        /* for multiple line */
+        align-content: center;
+    }
+
+    .flexColPopupContent {
+        display: flex;
+        flex-direction: column;
+        /* flex-wrap: wrap; */
+        justify-content: space-between;
+        align-items: center;
+
+        /* for multiple line */
+        align-content: center;
+
+        margin: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 40px;
+        padding-right: 40px;
+        border: 1px;
+        border-style: dashed;
+    }
+
+    .box {
+        border: 3px solid #0000ff;
+    }
+</style>
+
+<body>
+    <div id='app'>
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <div class="navbar-header">
+                    <h1>Sequence patterns</h1>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row searchbar">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <p>
+                        You can download a summary of EPCOT sequence patterns with Tomtom motif comparison results:
+                    <a href="https://github.com/liu-bioinfo-lab/EPCOT/blob/main/motif_comparison_summary.xls"
+                        target="_blank">
+                        motif_comparison_summary.xls
+                    </a>
+                    </p>
+
+                    <p>
+                        You can find the TF set investigated by EPCOT:
+                    <a href=" https://github.com/zzh24zzh/EPCOT/blob/master/Profiles/epigenomes.txt"
+                        target="_blank">
+                        epigenomes.txt
+                    </a>
+                    </p>
+                    <p>
+                        If you use EPCOT in your research work, please cite xxx
+                    </p>
+
+
+
+                    <h3>Enter the name of TF (e.g. CTCF): </h3>
+
+                    <input type="text" v-model='query' @keyup.enter='submit'>
+                </div>
+            </div>
+
+            <h2>
+                List of results
+            </h2>
+
+            <div v-if="noResFound">
+                <p>No result found. Displaying all TFs.</p>
+            </div>
+
+            <div v-for='(tf, tfName) in selectedTFs'>
+                <div v-if='tf.image_names.length == 1'>
+                    <div class="col-lg-3 col-md-3 col-sm-3">
+                        <div class="flexCol">
+                            <div class="flexRow">
+                                <div v-for="(image_names, index) in tf.image_names">
+                                    <img style='width: 100%;' :src="'img/' + image_names + '.png'">
+
+                                </div>
+                            </div>
+                            <div>
+                                <ul>
+                                    <li>
+                                        <strong>TF name: </strong>
+                                        {{ tfName ? tfName : 'No information provided' }}
+                                    </li>
+<!--                                    <li>-->
+<!--                                        <strong>-->
+<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
+<!--                                            <a v-else target="_blank">No information provided</a>-->
+<!--                                        </strong>-->
+<!--                                    </li>-->
+                                    <li data-toggle="modal" :data-target="'#popup' + tfName">
+                                        <strong><a>Show matched motifs</a></strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if='tf.image_names.length == 2'>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="flexCol">
+                            <div class="flexRow">
+                                <div v-for="(image_names, index) in tf.image_names">
+                                    <img style='width: 100%;' :src="'img/' + image_names + '.png'">
+
+                                </div>
+                            </div>
+                            <div>
+                                <ul>
+                                    <li>
+                                        <strong>TF name: </strong>
+                                        {{ tfName ? tfName : 'No information provided' }}
+                                    </li>
+<!--                                    <li>-->
+<!--                                        <strong>-->
+<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
+<!--                                            <a v-else target="_blank">No information provided</a>-->
+<!--                                        </strong>-->
+<!--                                    </li>-->
+                                    <li data-toggle="modal" :data-target="'#popup' + tfName">
+                                        <strong><a>Show matched motifs</a></strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else-if='tf.image_names.length == 3'>
+                    <div class="col-lg-9 col-md-9 col-sm-9">
+                        <div class="flexCol">
+                            <div class="flexRow">
+                                <div v-for="(image_names, index) in tf.image_names">
+                                    <img style='width: 100%;' :src="'img/' + image_names + '.png'">
+
+                                </div>
+                            </div>
+                            <div>
+                                <ul>
+                                    <li>
+                                        <strong>TF name: </strong>
+                                        {{ tfName ? tfName : 'No information provided' }}
+                                    </li>
+<!--                                    <li>-->
+<!--                                        <strong>-->
+<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <a v-else target="_blank">No information provided</a>&ndash;&gt;-->
+<!--                                        </strong>-->
+<!--                                    </li>-->
+                                    <li data-toggle="modal" :data-target="'#popup' + tfName">
+                                        <strong><a>Show matched motifs</a></strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="col-lg-12 col-md-12 col-sm-12">
+                        <div class="flexCol">
+                            <div class="flexRow">
+                                <div v-for="(image_names, index) in tf.image_names">
+                                    <img style='width: 100%;' :src="'img/' + image_names + '.png'">
+
+                                </div>
+                            </div>
+                            <div>
+                                <ul>
+                                    <li>
+                                        <strong>TF name: </strong>
+                                        {{ tfName ? tfName : 'No information provided' }}
+                                    </li>
+<!--                                    <li>-->
+<!--&lt;!&ndash;                                        <strong>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
+<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <a v-else target="_blank">No information provided</a>&ndash;&gt;-->
+<!--                                        </strong>-->
+<!--                                    </li>-->
+                                    <li data-toggle="modal" :data-target="'#popup' + tfName">
+                                        <strong><a>Show matched motifs</a></strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container">
+            <div v-for='(tf, tfName) in selectedTFs'>
+                <div class="modal fade" :id="'popup' + tfName" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content popup-content">
+                            <div class="modal-body">
+
+                                <h1>{{ tfName }}</h1>
+
+                                <div class="flexColPopup">
+                                    <div class="flexColPopupContent" v-for="image_name in tf.image_names">
+                                        <h2>{{ image_name }}</h2>
+                                        <h3 style="text-align:left">Sequence pattern of {{tfName}}</h3>
+                                        <img class="box" style='width: 600px;' :src="'img/' + image_name + '.png'">
+
+                                        <div v-if="tf.matches[image_name] !== undefined">
+                                            <h3><strong>Matched motifs from HOCOMOCO v11 Human:</strong></h3>
+
+                                            <div class="flexColPopup"
+                                                v-for="(match_info, targetName) in tf.matches[image_name]">
+                                                <a v-if="tfName"
+                                                    :href="'https://hocomoco11.autosome.org/motif/' + targetName"
+                                                    target="_blank">
+                                                    <strong>{{ targetName }}</strong>
+                                                </a>
+
+                                                <p>
+                                                    <strong>Q-value:</strong> {{ match_info.qv }}
+                                                </p>
+
+                                                <p v-if="match_info['confidence'] !== undefined">
+                                                    <strong>STRING score of the interaction between {{tfName}} and :</strong>
+                                                    {{ match_info['confidence'] }}
+                                                </p>
+<!--                                                <a v-else target="_blank">No information provided</a>-->
+
+                                                <img style='width: 600px;' :src="'img/' + targetName + '.png'">
+                                                <div style="width: 80%; border: 1px solid"></div>
+                                                <hr>
+                                            </div>
+                                        </div>
+                                        <div v-else>
+                                            <h3>No matches.</h3>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class='btn btn-default' data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
