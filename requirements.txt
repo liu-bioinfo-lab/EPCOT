@@ -1,0 +1,9 @@
+einops==0.3.2
+kipoiseq==0.5.2
+numpy==1.19.5
+torch==1.10.1
+scipy==1.7.3
+scikit-learn==1.0.2
+pybigwig==0.3.17
+hic-straw==1.0.0.1
+torchvision==0.11.2
