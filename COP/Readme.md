@@ -1,6 +1,6 @@
 # Chromatin contact map prediction task
 
-Model archietecture to predict 5kb-resolution Hi-C contact maps
+### Model archietecture to predict 5kb-resolution Hi-C contact maps
 <img
   src="../Profiles/COP.png"
   title=""
