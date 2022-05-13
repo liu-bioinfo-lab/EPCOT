@@ -44,27 +44,3 @@ def txttomatrix(txt_file,resolution):
     return np.array(rows),np.array(cols),np.array(data)
 
 
-# def process_train_data():
-#     resolution = 5000
-#     chr_lens = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
-#                 145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
-#                 101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468, 156040895]
-#     genome_lens = np.array(chr_lens) // resolution
-#     chrs = [str(i) for i in range(1, 23)] + ['X']
-#
-#     input_regions = {}
-#     for i in range(len(chrs)):
-#         inputs=[]
-#         genome_seq=ref_genome[chrs[i]]
-#         print(genome_seq.shape)
-#         for bin_idx in np.arange(0,genome_lens[i],50):
-#             wstart=bin_idx
-#             wend=wstart+1000
-#             if genome_seq[wstart:wend].sum() ==1000*1600:
-#                 inputs.append(np.array([wstart,wstart+1000]))
-#
-#         input_data[chrs[i]]=np.stack(inputs)
-#         print(genome_lens[i],input_data[chrs[i]].shape)
-#     with open('/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/COP/data/input_1Mb_test.pickle','wb') as f:
-#         pickle.dump(input_data,f)
-
