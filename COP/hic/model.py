@@ -1,3 +1,4 @@
+# some of the codes below are copied from Query2label
 import torch,math,os
 import numpy as np
 from torch import nn, Tensor,einsum

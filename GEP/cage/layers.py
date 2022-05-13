@@ -1,4 +1,4 @@
-# following codes are copied from https://github.com/lucidrains/enformer-pytorch
+# some of following codes are borrowed from https://github.com/lucidrains/enformer-pytorch
 
 import math
 import torch

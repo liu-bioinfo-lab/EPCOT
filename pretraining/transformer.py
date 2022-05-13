@@ -1,3 +1,4 @@
+#most of the codes below are copied from Query2label and DETR
 import torch
 import torch.nn.functional as F
 from torch import nn, Tensor
