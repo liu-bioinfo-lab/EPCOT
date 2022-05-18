@@ -63,7 +63,7 @@
         flex-direction: column;
         /* flex-wrap: wrap; */
         justify-content: space-between;
-        align-items: center;
+        align-items: left;
 
         /* for multiple line */
         align-content: center;
@@ -79,17 +79,19 @@
         /* for multiple line */
         align-content: center;
 
-        margin: 5px;
+        margin: 10px;
         padding-top: 5px;
         padding-bottom: 5px;
-        padding-left: 40px;
-        padding-right: 40px;
-        border: 1px;
-        border-style: dashed;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .box {
-        border: 3px solid #0000ff;
+        border: 2px solid #E74C3C;
+    }
+
+    .box1 {
+        border: 1.5px solid #7f7f7f;
     }
 </style>
 
@@ -107,18 +109,18 @@
                 <div class="col-lg-12 col-md-12 col-sm-12">
                     <p>
                         You can download a summary of EPCOT sequence patterns with Tomtom motif comparison results:
-                    <a href="https://github.com/liu-bioinfo-lab/EPCOT/blob/main/motif_comparison_summary.xls"
-                        target="_blank">
-                        motif_comparison_summary.xls
-                    </a>
+                        <a href="https://github.com/liu-bioinfo-lab/EPCOT/blob/main/motif_comparison_summary.xls"
+                            target="_blank">
+                            motif_comparison_summary.xls
+                        </a>
                     </p>
 
                     <p>
                         You can find the TF set investigated by EPCOT:
-                    <a href=" https://github.com/zzh24zzh/EPCOT/blob/master/Profiles/epigenomes.txt"
-                        target="_blank">
-                        epigenomes.txt
-                    </a>
+                        <a href=" https://github.com/zzh24zzh/EPCOT/blob/master/Profiles/epigenomes.txt"
+                            target="_blank">
+                            epigenomes.txt
+                        </a>
                     </p>
                     <p>
                         If you use EPCOT in your research work, please cite xxx
@@ -156,13 +158,13 @@
                                         <strong>TF name: </strong>
                                         {{ tfName ? tfName : 'No information provided' }}
                                     </li>
-<!--                                    <li>-->
-<!--                                        <strong>-->
-<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
-<!--                                            <a v-else target="_blank">No information provided</a>-->
-<!--                                        </strong>-->
-<!--                                    </li>-->
+                                                                        <li>
+                                                                            <strong>
+                                                                                <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"
+                                                                                    target="_blank">Motif search in JASPAR</a>
+                                                                                <a v-else target="_blank">No information provided</a>
+                                                                            </strong>
+                                                                        </li>
                                     <li data-toggle="modal" :data-target="'#popup' + tfName">
                                         <strong><a>Show matched motifs</a></strong>
                                     </li>
@@ -186,13 +188,13 @@
                                         <strong>TF name: </strong>
                                         {{ tfName ? tfName : 'No information provided' }}
                                     </li>
-<!--                                    <li>-->
-<!--                                        <strong>-->
-<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
-<!--                                            <a v-else target="_blank">No information provided</a>-->
-<!--                                        </strong>-->
-<!--                                    </li>-->
+                                                                        <li>
+                                                                            <strong>
+                                                                                <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"
+                                                                                    target="_blank">Motif search in JASPAR</a>
+                                                                                <a v-else target="_blank">No information provided</a>
+                                                                            </strong>
+                                                                        </li>
                                     <li data-toggle="modal" :data-target="'#popup' + tfName">
                                         <strong><a>Show matched motifs</a></strong>
                                     </li>
@@ -216,13 +218,13 @@
                                         <strong>TF name: </strong>
                                         {{ tfName ? tfName : 'No information provided' }}
                                     </li>
-<!--                                    <li>-->
-<!--                                        <strong>-->
-<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <a v-else target="_blank">No information provided</a>&ndash;&gt;-->
-<!--                                        </strong>-->
-<!--                                    </li>-->
+                                                                        <li>
+                                                                            <strong>
+                                                                                <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"
+                                                                                    target="_blank">Motif search in JASPAR</a>
+                                                                                <a v-else target="_blank">No information provided</a>
+                                                                            </strong>
+                                                                        </li>
                                     <li data-toggle="modal" :data-target="'#popup' + tfName">
                                         <strong><a>Show matched motifs</a></strong>
                                     </li>
@@ -246,13 +248,13 @@
                                         <strong>TF name: </strong>
                                         {{ tfName ? tfName : 'No information provided' }}
                                     </li>
-<!--                                    <li>-->
-<!--&lt;!&ndash;                                        <strong>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"&ndash;&gt;-->
-<!--&lt;!&ndash;                                                target="_blank">JASPAR Link</a>&ndash;&gt;-->
-<!--&lt;!&ndash;                                            <a v-else target="_blank">No information provided</a>&ndash;&gt;-->
-<!--                                        </strong>-->
-<!--                                    </li>-->
+                                                                        <li>
+                                                                            <strong>
+                                                                                <a v-if="tfName" :href="'https://jaspar.genereg.net/search?q=' + tfName"
+                                                                                    target="_blank">Motif search in JASPAR</a>
+                                                                                <a v-else target="_blank">No information provided</a>
+                                                                            </strong>
+                                                                        </li>
                                     <li data-toggle="modal" :data-target="'#popup' + tfName">
                                         <strong><a>Show matched motifs</a></strong>
                                     </li>
@@ -273,45 +275,47 @@
                         <div class="modal-content popup-content">
                             <div class="modal-body">
 
-                                <h1>{{ tfName }}</h1>
+<!--                                <h2 style="text-align:center">{{ tfName }}</h2>-->
 
                                 <div class="flexColPopup">
-                                    <div class="flexColPopupContent" v-for="image_name in tf.image_names">
-                                        <h2>{{ image_name }}</h2>
-                                        <h3 style="text-align:left">Sequence pattern of {{tfName}}</h3>
-                                        <img class="box" style='width: 600px;' :src="'img/' + image_name + '.png'">
+                                    <div class="flexColPopupContent" v-for="image_name in tf.image_names" style="border:2px solid">
+                                        <h3 style="text-align:left; color:#E74C3C">Patten ID: {{ image_name }}</h3>
+<!--                                        <h4 style="text-align:left">Sequence pattern of {{tfName}}</h4>-->
+                                        <img class="box" style='width: 500px;' :src="'img/' + image_name + '.png'">
 
                                         <div v-if="tf.matches[image_name] !== undefined">
+                                            <br>
                                             <h3><strong>Matched motifs from HOCOMOCO v11 Human:</strong></h3>
-
+<!--                                            <br>-->
                                             <div class="flexColPopup"
                                                 v-for="(match_info, targetName) in tf.matches[image_name]">
-                                                <a v-if="tfName"
+                                                <p> <strong>Matched motif:</strong> <a v-if="tfName"
                                                     :href="'https://hocomoco11.autosome.org/motif/' + targetName"
                                                     target="_blank">
-                                                    <strong>{{ targetName }}</strong>
+                                                    {{ targetName }}
                                                 </a>
-
+                                                </p>
                                                 <p>
                                                     <strong>Q-value:</strong> {{ match_info.qv }}
                                                 </p>
+                                                <div v-if="match_info['confidence'] !== undefined">
+                                                    <p><strong>
+                                                            STRING confidence score of the interaction:</strong> {{ match_info['confidence']}} </p>
+                                                </div>
 
-                                                <p v-if="match_info['confidence'] !== undefined">
-                                                    <strong>STRING score of the interaction between {{tfName}} and :</strong>
-                                                    {{ match_info['confidence'] }}
-                                                </p>
-<!--                                                <a v-else target="_blank">No information provided</a>-->
+                                                <!--                                                <a v-else target="_blank">No information provided</a>-->
 
-                                                <img style='width: 600px;' :src="'img/' + targetName + '.png'">
-                                                <div style="width: 80%; border: 1px solid"></div>
+                                                <img class="box1" style='width: 450px;' :src="'img/' + targetName + '.png'">
+<!--                                                <div style="width: 80%; border: 1px solid"></div>-->
                                                 <hr>
                                             </div>
                                         </div>
                                         <div v-else>
-                                            <h3>No matches.</h3>
+                                            <h4>No matches.</h4>
                                         </div>
 
                                     </div>
+
                                 </div>
 
                             </div>
