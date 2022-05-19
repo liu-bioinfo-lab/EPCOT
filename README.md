@@ -18,7 +18,7 @@ EPCOT (comprehensively predicting <ins>EP</ins>igenome, <ins>C</ins>hromatin <in
 
 You can use ```conda``` to install the required packages
 ```
-conda create -n epcot python=3.9
+conda create -n epcot
 conda activate epcot
 pip install -r requirements.txt
 ```
