@@ -54,9 +54,10 @@ class Tranmodel(nn.Module):
         return out
 
 def build_backbone(args):
-    model = CNN(args.num_class, args.seq_length, args.rnn_embedsize)
-    # model_path='models/checkpoint1_cnn_%s.pt'%args.ac_data
-    # model.load_state_dict(torch.load(model_path, map_location='cpu'))
+    model = CNN(args.num_class, args.seq_length, args.embedsize)
+    if args.load_backbone:
+        model_path='models/backbone_%s.pt'%args.ac_data
+        model.load_state_dict(torch.load(model_path, map_location='cpu'))
     return model
 def build_transformer(args):
     return Transformer(
