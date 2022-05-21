@@ -56,6 +56,7 @@ class Tranmodel(nn.Module):
 def build_backbone(args):
     model = CNN(args.num_class, args.seq_length, args.embedsize)
     if args.load_backbone:
+        # load trained backbone
         model_path='models/backbone_%s.pt'%args.ac_data
         model.load_state_dict(torch.load(model_path, map_location='cpu'))
     return model

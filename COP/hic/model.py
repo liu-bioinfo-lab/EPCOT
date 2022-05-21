@@ -2,9 +2,9 @@
 import torch,math,os
 import numpy as np
 from torch import nn, Tensor,einsum
-from .transformer import Transformer
+from hic.transformer import Transformer
 from einops import rearrange
-from .layers import dilated_tower,AttentionPool,CNN
+from hic.layers import dilated_tower,AttentionPool,CNN
 from einops.layers.torch import Rearrange
 class GroupWiseLinear(nn.Module):
     def __init__(self, num_class, hidden_dim, bias=True):
@@ -142,7 +142,7 @@ class finetunemodel(nn.Module):
         return x
 
 def build_backbone(args):
-    model = CNN(args.num_class, args.seq_length, args.rnn_embedsize)
+    model = CNN(args.num_class, args.seq_length, args.embedsize)
     return model
 def build_transformer(args):
     return Transformer(
@@ -162,6 +162,7 @@ def build_pretrain_model_hic(args):
             num_class=args.num_class,
         )
     if args.pretrain_path != None:
+        print('load pre-training model: '+args.pretrain_path)
         pretrain_model.load_state_dict(torch.load(args.pretrain_path, map_location='cpu'))
     if not args.fine_tune:
         for param in pretrain_model.parameters():

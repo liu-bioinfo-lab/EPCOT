@@ -92,7 +92,7 @@ class finetunemodel(nn.Module):
         return x
 
 def build_backbone(args):
-    model = CNN(args.num_class, args.seq_length, args.rnn_embedsize)
+    model = CNN(args.num_class, args.seq_length, args.embedsize)
     return model
 def build_transformer(args):
     return Transformer(
