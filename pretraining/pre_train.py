@@ -1,7 +1,12 @@
-from model import build_model
+import os,sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+from pretraining.model import build_model
 import argparse
 from torch.optim import lr_scheduler
-import os, pickle, time
+import pickle, time
 import random
 import numpy as np
 import torch.optim as optim
@@ -9,7 +14,7 @@ import torch
 from torch.utils.data import DataLoader,SubsetRandomSampler
 
 import argparse
-from layers import Balanced_AsymmetricLoss
+from pretraining.layers import Balanced_AsymmetricLoss
 from dataset import Task1Dataset
 
 def parser_args():

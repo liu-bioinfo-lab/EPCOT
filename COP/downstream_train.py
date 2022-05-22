@@ -37,9 +37,8 @@ def parser_args():
     parser.add_argument('--ac_data', type=str, default='dnase_norm')
     parser.add_argument('--fine_tune', default=False, action='store_true')
     parser.add_argument('--trunk',  type=str, default='transformer')
-    # parser.add_argument('--pretrain_path',
-    #                     default=None)
-    parser.add_argument('--pretrain_path',default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/pretrain/models/checkpoint_pretrain_cnn1_dnase_norm.pt')
+    parser.add_argument('--pretrain_path',type=str,default='none')
+    # parser.add_argument('--pretrain_path',type=str,default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/pretrain/models/checkpoint_pretrain_cnn1_dnase_norm.pt')
     args = parser.parse_args()
     return args
 def get_args():
@@ -52,27 +51,15 @@ model= build_pretrain_model_hic(args)
 model.cuda()
 criterion= torch.nn.MSELoss()
 
-def is_pretrain(n):
-    return 'pretrain_model' in n
-if args.fine_tune:
-    params = list(model.named_parameters())
-    optimizer = optim.AdamW(
-        [
-            {"params": [p for n, p in params if is_pretrain(n)], "lr": args.lr},
-            {"params": [p for n, p in params if not is_pretrain(n)]},
-        ],
-        lr=args.lr,weight_decay=1e-6
-    )
-else:
-    optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
+optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
 
-chroms = [str(i) for i in range(1, 20)]
-# chroms = [str(i) for i in range(1, 23)]
-test_chrs=['3','11','17']
+# chroms = [str(i) for i in range(1, 20)]
+chroms = [str(i) for i in range(1, 23)]
+test_chrs=['3','11']
 valid_chrs=['9','16']
 train_chrs=list(set(chroms)-set(test_chrs)-set(valid_chrs))
 # cl='IMR-90'
-cl='CH12LX'
+cl='GM12878'
 
 dnase_data, ref_data,hic_data=prepare_train_data(cl,chroms)
 
@@ -168,17 +155,17 @@ for epoch in range(args.epochs):
     valid_loss = np.average(validation_losses)
     print('Epoch: {} LR: {:.8f} valid_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], valid_loss))
 
-    with open('log_%s.txt' %cl, 'a') as f:
+    with open('log1_%s.txt' %cl, 'a') as f:
         f.write('Epoch: %s, LR: %s, train_loss: %s, valid_loss: %s\n' % (
         epoch, optimizer.param_groups[0]['lr'], train_loss, valid_loss))
-    with open('log_%s.txt' %cl, 'a') as f:
+    with open('log1_%s.txt' %cl, 'a') as f:
         f.write('cl: %s, pcc: %s,spm:%s\n' % (cl, np.mean(pccs), np.mean(spearmans)))
 
     if criter > best_criter:
         best_criter = criter
         print('save model')
         torch.save(model.state_dict(),
-                   'models/%s_%s.pt' % (cl, args.bins))
+                   'models/%s_%s_scratch.pt' % (cl, args.bins))
         if args.test:
             testing_losses = []
             pred_eval = []
@@ -208,5 +195,5 @@ for epoch in range(args.epochs):
             print(np.mean(spearmans))
 
             test_loss = np.average(testing_losses)
-            with open('log_%s.txt' %cl, 'a') as f:
+            with open('log1_%s.txt' %cl, 'a') as f:
                 f.write('cl: %s, pcc: %s,spm:%s, loss: %s\n' % (cl, np.mean(pccs), np.mean(spearmans),test_loss))

@@ -2,8 +2,8 @@
 import torch,math
 import numpy as np
 from torch import nn, Tensor
-from .layers import CNN
-from .transformer import Transformer
+from pretraining.layers import CNN
+from pretraining.transformer import Transformer
 
 class GroupWiseLinear(nn.Module):
     def __init__(self, num_class, hidden_dim, bias=True):

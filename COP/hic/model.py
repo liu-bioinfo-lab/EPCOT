@@ -161,7 +161,7 @@ def build_pretrain_model_hic(args):
             transfomer=transformer,
             num_class=args.num_class,
         )
-    if args.pretrain_path != None:
+    if args.pretrain_path != 'none':
         print('load pre-training model: '+args.pretrain_path)
         pretrain_model.load_state_dict(torch.load(args.pretrain_path, map_location='cpu'))
     if not args.fine_tune:

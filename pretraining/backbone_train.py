@@ -1,6 +1,9 @@
-import os, pickle, time
+import os, pickle, time,sys
 import random
-
+import inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 import numpy as np
 from scipy.sparse import load_npz
 import torch.optim as optim
@@ -8,11 +11,12 @@ import torch
 from torch.utils.data import DataLoader,SubsetRandomSampler
 
 import argparse
-from layers import backbone_CNN,Balanced_AsymmetricLoss
+from pretraining.layers import backbone_CNN,Balanced_AsymmetricLoss
 from train_util import best_param
-from base_dataset import Task1Dataset,TestctDataset,TestDataset
+from dataset import Task1Dataset
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--num_class', default=245, type=int,help='number of labels')
 parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate.')
 parser.add_argument('--batchsize', type=int, default=100)
 parser.add_argument('--epochs', type=int, default=20)
@@ -25,7 +29,7 @@ args = parser.parse_args()
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-model=backbone_CNN(nclass=245, seq_length=1600, embed_length=320)
+model=backbone_CNN(nclass=args.num_class, seq_length=1600, embed_length=320)
 model.to(device)
 criterion = Balanced_AsymmetricLoss(gamma_neg=0, gamma_pos=0, clip=0)
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -56,23 +60,14 @@ best_loss=1000
 for epoch in range(args.epochs):
     training_losses=[]
     model.train()
-    if args.distillation:
-        teacher_model.eval()
     for step, (input_seq,input_dnase,input_label,label_mask) in enumerate(train_loader):
         t = time.time()
         train_seq= torch.FloatTensor(torch.cat((input_seq,input_dnase),1)).to(device)
         train_lmask= labelmasks[label_mask]\
-            .view(input_seq.shape[0],lengths['TF']+lengths['HM']).to(device)
+            .view(input_seq.shape[0],args.num_class).to(device)
         train_target = input_label.float().to(device)
-        if args.distillation:
-            with torch.no_grad():
-                softl=torch.sigmoid(teacher_model(train_seq))
-            calibrate_target = args.alpha * softl + (1-args.alpha)*train_target
         output = model(train_seq)
-        if args.distillation:
-            loss=criterion(output, calibrate_target, train_lmask)
-        else:
-            loss = criterion(output, train_target, train_lmask)
+        loss = criterion(output, train_target, train_lmask)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -87,23 +82,15 @@ for epoch in range(args.epochs):
 
     validation_losses = []
     model.eval()
-    if args.distillation:
-        teacher_model.eval()
     for step, (input_seq, input_dnase, input_label, label_mask) in enumerate(valid_loader):
         t = time.time()
         valid_seq = torch.FloatTensor(torch.cat((input_seq, input_dnase), 1)).to(device)
         valid_lmask = labelmasks[label_mask] \
-            .view(input_seq.shape[0], lengths['TF'] + lengths['HM']).to(device)
+            .view(input_seq.shape[0], args.num_class).to(device)
         valid_target = input_label.float().to(device)
         with torch.no_grad():
-            if args.distillation:
-                softl=torch.sigmoid(teacher_model(valid_seq))
-                calibrate_target = args.alpha * softl + (1 - args.alpha) * valid_target
             output = model(valid_seq)
-            if args.distillation:
-                loss = criterion(output, calibrate_target, valid_lmask)
-            else:
-                loss = criterion(output, valid_target, valid_lmask)
+            loss = criterion(output, valid_target, valid_lmask)
             cur_loss = loss.item()
             validation_losses.append(cur_loss)
             if step % 10000 == 0:
