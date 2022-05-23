@@ -45,31 +45,16 @@ def get_args():
     args = parser_args()
     return args
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-args = get_args()
-model= build_pretrain_model_hic(args)
-model.cuda()
-criterion= torch.nn.MSELoss()
-
-optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
-
-# chroms = [str(i) for i in range(1, 20)]
-chroms = [str(i) for i in range(1, 23)]
-test_chrs=['3','11']
-valid_chrs=['9','16']
-train_chrs=list(set(chroms)-set(test_chrs)-set(valid_chrs))
-# cl='IMR-90'
-cl='GM12878'
-
-dnase_data, ref_data,hic_data=prepare_train_data(cl,chroms)
-
-effective_lens=args.bins-2*args.crop
-triu_tup = np.triu_indices(effective_lens)
-array_indices = np.array(list(triu_tup[1] + effective_lens * triu_tup[0]))
 def upper_tri(x):
+    args = get_args()
+    effective_lens = args.bins - 2 * args.crop
+    triu_tup = np.triu_indices(effective_lens)
+    array_indices = np.array(list(triu_tup[1] + effective_lens * triu_tup[0]))
     return x.reshape(-1,effective_lens**2,1)[:,array_indices, :]
 
-def load_data(data):
+def load_data(data,ref_data,dnase_data,hic_data,chroms):
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    args = get_args()
     data=data.numpy().astype(int)
     input=[]
     label=[]
@@ -86,114 +71,129 @@ def load_data(data):
     return input.float().to(device),label.float().to(device)
 
 
+def main():
+
+    args = get_args()
+    model= build_pretrain_model_hic(args)
+    model.cuda()
+    criterion= torch.nn.MSELoss()
+    optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
+    chroms = [str(i) for i in range(1, 23)]
+    test_chrs=['3','11','17']
+    valid_chrs=['9','16']
+    train_chrs=list(set(chroms)-set(test_chrs)-set(valid_chrs))
+    cl='HepG2'
+    dnase_data, ref_data,hic_data=prepare_train_data(cl,chroms)
 
 
-train_dataset=hic_dataset(train_chrs)
-train_loader=DataLoader(train_dataset,batch_size=args.batchsize,shuffle=True)
+    train_dataset=hic_dataset(train_chrs)
+    train_loader=DataLoader(train_dataset,batch_size=args.batchsize,shuffle=True)
 
-valid_dataset=hic_dataset(valid_chrs)
-valid_loader=DataLoader(valid_dataset,batch_size=args.batchsize,shuffle=False)
+    valid_dataset=hic_dataset(valid_chrs)
+    valid_loader=DataLoader(valid_dataset,batch_size=args.batchsize,shuffle=False)
 
-testdataset=hic_dataset(test_chrs)
-test_loader=DataLoader(testdataset,batch_size=args.batchsize,shuffle=False)
+    testdataset=hic_dataset(test_chrs)
+    test_loader=DataLoader(testdataset,batch_size=args.batchsize,shuffle=False)
 
-scheduler = lr_scheduler.OneCycleLR(optimizer, max_lr=args.lr,steps_per_epoch=len(train_loader),
-                    epochs=args.epochs, pct_start=0.025, div_factor=100,final_div_factor=0.01)
-best_criter=0
-for epoch in range(args.epochs):
-    training_losses=[]
-    model.train()
-    for step, input_indices in enumerate(train_loader):
-        t=time.time()
-        input_data,input_label=load_data(input_indices)
-        output = model(input_data)
-        loss = criterion(output, input_label)
-        loss = loss / args.accum_iter
-        loss.backward()
-        if ((step + 1) % args.accum_iter == 0) or (step + 1 == len(train_loader)):
-            optimizer.step()
-            optimizer.zero_grad()
-
-        scheduler.step()
-        cur_loss = loss.item()
-        training_losses.append(cur_loss)
-        if step % 1000 == 0:
-            print("Epoch:", '%04d' % (epoch + 1), "step:", '%04d' % (step + 1), "train_loss=",
-                      "{:.7f}".format(cur_loss),
-                      "time=", "{:.5f}".format(time.time() - t), "lr=", "{:.10f}".format(optimizer.param_groups[0]['lr'])
-                      )
-
-    validation_losses = []
-    pccs=[]
-    spearmans=[]
-    model.eval()
-    for step, input_indices in enumerate(valid_loader):
-        t = time.time()
-
-        with torch.no_grad():
-            input_data, input_label = load_data(input_indices)
-            if torch.sum(input_label) == 0:
-                continue
+    scheduler = lr_scheduler.OneCycleLR(optimizer, max_lr=args.lr,steps_per_epoch=len(train_loader),
+                        epochs=args.epochs, pct_start=0.025, div_factor=100,final_div_factor=0.01)
+    best_criter=0
+    for epoch in range(args.epochs):
+        training_losses=[]
+        model.train()
+        for step, input_indices in enumerate(train_loader):
+            t=time.time()
+            input_data,input_label=load_data(input_indices,ref_data,dnase_data,hic_data,chroms)
             output = model(input_data)
             loss = criterion(output, input_label)
+            loss = loss / args.accum_iter
+            loss.backward()
+            if ((step + 1) % args.accum_iter == 0) or (step + 1 == len(train_loader)):
+                optimizer.step()
+                optimizer.zero_grad()
 
+            scheduler.step()
             cur_loss = loss.item()
-            validation_losses.append(cur_loss)
-            out_array = output.cpu().data.detach().numpy().flatten()
-            target_array = input_label.cpu().data.detach().numpy().flatten()
+            training_losses.append(cur_loss)
+            if step % 1000 == 0:
+                print("Epoch:", '%04d' % (epoch + 1), "step:", '%04d' % (step + 1), "train_loss=",
+                          "{:.7f}".format(cur_loss),
+                          "time=", "{:.5f}".format(time.time() - t), "lr=", "{:.10f}".format(optimizer.param_groups[0]['lr'])
+                          )
 
-            pcc, _ = pearsonr(out_array.squeeze(), target_array.squeeze())
-            spm,_=spearmanr(out_array.squeeze(), target_array.squeeze())
-            pccs.append(pcc)
-            spearmans.append(spm)
-    print(np.mean(pccs))
-    print(np.mean(spearmans))
-    criter=np.mean(pccs)+np.mean(spearmans)
-
-    train_loss = np.average(training_losses)
-    print('Epoch: {} LR: {:.8f} train_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], train_loss))
-    valid_loss = np.average(validation_losses)
-    print('Epoch: {} LR: {:.8f} valid_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], valid_loss))
-
-    with open('log1_%s.txt' %cl, 'a') as f:
-        f.write('Epoch: %s, LR: %s, train_loss: %s, valid_loss: %s\n' % (
-        epoch, optimizer.param_groups[0]['lr'], train_loss, valid_loss))
-    with open('log1_%s.txt' %cl, 'a') as f:
-        f.write('cl: %s, pcc: %s,spm:%s\n' % (cl, np.mean(pccs), np.mean(spearmans)))
-
-    if criter > best_criter:
-        best_criter = criter
-        print('save model')
-        torch.save(model.state_dict(),
-                   'models/%s_%s_scratch.pt' % (cl, args.bins))
-        if args.test:
-            testing_losses = []
-            pred_eval = []
-            target_eval = []
-            pccs=[]
-            spearmans=[]
-            model.eval()
+        validation_losses = []
+        pccs=[]
+        spearmans=[]
+        model.eval()
+        for step, input_indices in enumerate(valid_loader):
+            t = time.time()
             with torch.no_grad():
-                for step, input_indices in enumerate(test_loader):
-                    t = time.time()
-                    input_data, input_label = load_data(input_indices)
-                    if torch.sum(input_label) == 0:
-                        continue
-                    output = model(input_data)
-                    loss = criterion(output, input_label)
-                    cur_loss = loss.item()
-                    testing_losses.append(cur_loss)
+                input_data, input_label = load_data(input_indices,ref_data,dnase_data,hic_data,chroms)
+                if torch.sum(input_label) == 0:
+                    continue
+                output = model(input_data)
+                loss = criterion(output, input_label)
 
-                    out_array=output.cpu().data.detach().numpy().flatten()
-                    target_array=input_label.cpu().data.detach().numpy().flatten()
+                cur_loss = loss.item()
+                validation_losses.append(cur_loss)
+                out_array = output.cpu().data.detach().numpy().flatten()
+                target_array = input_label.cpu().data.detach().numpy().flatten()
 
-                    pcc, _ = pearsonr(out_array.squeeze(), target_array.squeeze())
-                    spm, _ = spearmanr(out_array.squeeze(), target_array.squeeze())
-                    pccs.append(pcc)
-                    spearmans.append(spm)
-            print(np.mean(pccs))
-            print(np.mean(spearmans))
+                pcc, _ = pearsonr(out_array.squeeze(), target_array.squeeze())
+                spm,_=spearmanr(out_array.squeeze(), target_array.squeeze())
+                pccs.append(pcc)
+                spearmans.append(spm)
+        print(np.mean(pccs))
+        print(np.mean(spearmans))
+        criter=np.mean(pccs)+np.mean(spearmans)
 
-            test_loss = np.average(testing_losses)
-            with open('log1_%s.txt' %cl, 'a') as f:
-                f.write('cl: %s, pcc: %s,spm:%s, loss: %s\n' % (cl, np.mean(pccs), np.mean(spearmans),test_loss))
+        train_loss = np.average(training_losses)
+        print('Epoch: {} LR: {:.8f} train_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], train_loss))
+        valid_loss = np.average(validation_losses)
+        print('Epoch: {} LR: {:.8f} valid_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], valid_loss))
+
+        with open('log1_%s.txt' %cl, 'a') as f:
+            f.write('Epoch: %s, LR: %s, train_loss: %s, valid_loss: %s\n' % (
+            epoch, optimizer.param_groups[0]['lr'], train_loss, valid_loss))
+        with open('log1_%s.txt' %cl, 'a') as f:
+            f.write('cl: %s, pcc: %s,spm:%s\n' % (cl, np.mean(pccs), np.mean(spearmans)))
+
+        if criter > best_criter:
+            best_criter = criter
+            print('save model')
+            torch.save(model.state_dict(),
+                       'models/%s_%s_scratch.pt' % (cl, args.bins))
+            if args.test:
+                testing_losses = []
+                pred_eval = []
+                target_eval = []
+                pccs=[]
+                spearmans=[]
+                model.eval()
+                with torch.no_grad():
+                    for step, input_indices in enumerate(test_loader):
+                        t = time.time()
+                        input_data, input_label = load_data(input_indices,ref_data,dnase_data,hic_data,chroms)
+                        if torch.sum(input_label) == 0:
+                            continue
+                        output = model(input_data)
+                        loss = criterion(output, input_label)
+                        cur_loss = loss.item()
+                        testing_losses.append(cur_loss)
+
+                        out_array=output.cpu().data.detach().numpy().flatten()
+                        target_array=input_label.cpu().data.detach().numpy().flatten()
+
+                        pcc, _ = pearsonr(out_array.squeeze(), target_array.squeeze())
+                        spm, _ = spearmanr(out_array.squeeze(), target_array.squeeze())
+                        pccs.append(pcc)
+                        spearmans.append(spm)
+                print(np.mean(pccs))
+                print(np.mean(spearmans))
+
+                test_loss = np.average(testing_losses)
+                with open('log1_%s.txt' %cl, 'a') as f:
+                    f.write('cl: %s, pcc: %s,spm:%s, loss: %s\n' % (cl, np.mean(pccs), np.mean(spearmans),test_loss))
+
+if __name__=="__main__":
+    main()

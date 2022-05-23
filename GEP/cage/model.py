@@ -49,7 +49,6 @@ class Tranmodel(nn.Module):
         src=self.input_proj(src)
         if fea_pos:
             src+=self.feature_pos_encoding
-        # src = src.permute(0, 2, 1)
         src = self.transformer(src)
         return src
 
