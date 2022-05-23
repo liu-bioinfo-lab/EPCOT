@@ -15,7 +15,7 @@ def parser_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_class', default=245, type=int)
     parser.add_argument('--seq_length', default=1600, type=int)
-    parser.add_argument('--rnn_embedsize', default=320, type=int)
+    parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--bins', type=int, default=250)
     parser.add_argument('--crop', type=int, default=25)
     parser.add_argument('--nheads', default=4, type=int)
@@ -37,13 +37,16 @@ def parser_args():
     parser.add_argument('--fine_tune', default=False, action='store_true')
     parser.add_argument('--load_model', default=False, action='store_true')
     parser.add_argument('--mode', type=str, default='transformer',choices=['transformer','lstm'])
+    parser.add_argument('--pretrain_path', type=str, default='none')
+    # parser.add_argument('--pretrain_path',type=str,default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/pretrain/models/checkpoint_pretrain_cnn1_dnase_norm.pt')
     args = parser.parse_args()
     return args
 def get_args():
     args = parser_args()
     return args
 
-def load_data(data,dnase_data, ref_data):
+def load_data(data,dnase_data, ref_data,chroms,all_cls):
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     data=data.numpy().astype(int)
     input=[]
     for i in range(data.shape[0]):
@@ -120,7 +123,7 @@ def main():
 
             t=time.time()
             input_label=input_label.float().to(device)
-            input_data=load_data(input_indices,dnase_data, ref_data)
+            input_data=load_data(input_indices,dnase_data, ref_data,chroms,all_cls)
             output = model(input_data)
             loss = criterion(output, input_label)
             loss = loss / args.accum_iter
@@ -154,7 +157,7 @@ def main():
                 t = time.time()
                 with torch.no_grad():
                     input_label = input_label.float().to(device)
-                    input_data = load_data(input_indices,dnase_data, ref_data)
+                    input_data = load_data(input_indices,dnase_data, ref_data,chroms,all_cls)
 
                     output = model(input_data)
                     loss = criterion(output, input_label)
@@ -188,7 +191,7 @@ def main():
                         for step, (input_indices,input_label) in enumerate(testct_loader[cidx]):
                             t = time.time()
                             input_label = input_label.float().to(device)
-                            input_data= load_data(input_indices,dnase_data, ref_data)
+                            input_data= load_data(input_indices,dnase_data, ref_data,chroms,all_cls)
                             output = model(input_data)
                             pred_eval.append(output.cpu().data.detach().numpy())
                             target_eval.append(input_label.cpu().data.detach().numpy())
