@@ -19,6 +19,6 @@ pip install gdown
 gdown 1eP-ruOcywlGeQIRuVwWk_QFc4z9j4-jF --output models/cage_transformer.pt
 ```
 
-## train from scratch
+## training models from scratch
 
-Please refer to the codes []()
+Please refer to the codes [downstream_train_cage.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_cage.py)
