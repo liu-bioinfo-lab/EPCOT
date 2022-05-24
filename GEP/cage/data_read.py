@@ -1,4 +1,4 @@
-## the scripts below are slightly modified from https://github.com/calico/basenji/blob/master/bin/basenji_data_read.py
+## the codes below are slightly modified from https://github.com/calico/basenji/blob/master/bin/basenji_data_read.py
 
 from optparse import OptionParser
 
