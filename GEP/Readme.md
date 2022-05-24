@@ -1,3 +1,5 @@
+## Downstream model architecture
+
 <img
   src="../Profiles/GEP.png"
   title=""
