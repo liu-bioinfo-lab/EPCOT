@@ -60,7 +60,7 @@ def main():
   genome_cov_file='/scratch/drjieliu_root/drjieliu/zhenhaoz/CAGE-seq/%s_cage.bigWig'%(options.cl)
   # input 250kb regions
   seqs_bed_file='sequences.bed'
-  seqs_cov_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/%s_seq_cov_1000.h5'%(options.cl)
+  seqs_cov_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/%s_seq_cov.h5'%(options.cl)
   ModelSeq = collections.namedtuple('ModelSeq', ['chr', 'start', 'end'])
   assert(options.crop_bp >= 0)
 
