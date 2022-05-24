@@ -27,4 +27,4 @@ gdown 1eP-ruOcywlGeQIRuVwWk_QFc4z9j4-jF --output models/cage_transformer.pt
 
 ## training models from scratch
 
-Please refer to the codes [downstream_train_cage.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_cage.py)
+For RNA-seq GEP, please refer to the script [downstream_train_rnaseq.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_rnaseq.py) . For CAGE-seq GEP please refer to the script [downstream_train_cage.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_cage.py)
