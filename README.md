@@ -30,7 +30,7 @@ pip install -r requirements.txt
 Please go to the directory [Data/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/Data) for how to generate the inputs to EPCOT (one-hot repsentations of DNA sequences and normalized DNase-seq).
 
 ### Download the pre-training model and downstream models
-You can download our pre-training model from Google Drive
+You can download our pre-training model trained on DNA sequence and DNase-seq from Google Drive
 ```
 pip install gdown
 gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output models/pretrain_dnase.pt
