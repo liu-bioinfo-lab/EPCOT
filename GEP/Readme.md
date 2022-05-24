@@ -7,3 +7,4 @@
   
   
  ## Data
+For RNA-seq GEP, we download the datasets of DeepChrome and AttentiveChrome from [https://zenodo.org/record/2652278#.Yow84ZPMKAk](https://zenodo.org/record/2652278#.Yow84ZPMKAk), and GC-MERGE data from [https://github.com/rsinghlab/GC-MERGE/tree/main/src/data](https://github.com/rsinghlab/GC-MERGE/tree/main/src/data)
