@@ -18,3 +18,7 @@ The model to predict 1kb-reolustion CAGE-seq with transformer layers in the down
 pip install gdown
 gdown 1eP-ruOcywlGeQIRuVwWk_QFc4z9j4-jF --output models/cage_transformer.pt
 ```
+
+## train from scratch
+
+Please refer to the codes []()
