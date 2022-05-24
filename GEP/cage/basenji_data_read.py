@@ -13,15 +13,14 @@ except:
   pass
 import scipy.interpolate
 
-# from basenji_data import ModelSeq
 import collections
 
 
 
 
 def main():
-  usage = 'usage: %prog [options] <genome_cov_file> <seqs_bed_file> <seqs_cov_file>'
-  parser = OptionParser(usage)
+  # example usage: python basenji_data_read.py --cl A549
+  parser = OptionParser()
   parser.add_option('-b', dest='blacklist_bed',
       help='Set blacklist nucleotides to a baseline value.')
   parser.add_option('--black_pct', dest='blacklist_pct',
@@ -57,10 +56,10 @@ def main():
 
   options.blacklist_bed='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/cage-seq/black_list.bed'
   print(options.blacklist_bed,options.cl,options.clip)
-
+  # bigwig file output from bam_cov.py
   genome_cov_file='/scratch/drjieliu_root/drjieliu/zhenhaoz/CAGE-seq/%s_cage.bigWig'%(options.cl)
-
-  seqs_bed_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/250kb/sequences.bed'
+  # input 250kb regions
+  seqs_bed_file='sequences.bed'
   seqs_cov_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/%s_seq_cov_1000.h5'%(options.cl)
   ModelSeq = collections.namedtuple('ModelSeq', ['chr', 'start', 'end'])
   assert(options.crop_bp >= 0)
