@@ -44,4 +44,5 @@ gdown 1ofkpS526gXpnusGpRWVHgIFFFpTSW4Rm --output models/hic_IMR-90_transformer.p
 gdown 1ia-ZoSoiZGDFPnZcySzMpirovHhulRfH --output models/hic_HFF_transformer.pt
 
 # 1kb-resolution Micro-C
+gdown 1PUQyBdqadq2AI9IZPpeAYc5zwjWeoph7 --output models/HFF_Micro-C_transformer.pt
 ```
