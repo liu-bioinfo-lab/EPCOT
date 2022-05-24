@@ -19,7 +19,7 @@ import collections
 
 
 def main():
-  # example usage: python basenji_data_read.py --cl A549
+  # example usage: python data_read.py --cl A549
   parser = OptionParser()
   parser.add_option('-b', dest='blacklist_bed',
       help='Set blacklist nucleotides to a baseline value.')
