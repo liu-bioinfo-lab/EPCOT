@@ -29,7 +29,7 @@ def main():
       default=0.25, type='float',
       help='Clip blacklisted regions to this distribution value [Default: %default')
   parser.add_option('-c', dest='clip',
-      default=10000, type='float',
+      default=3000, type='float',
       help='Clip values post-summary to a maximum [Default: %default]')
   parser.add_option('--clip_soft', dest='clip_soft',
       default=None, type='float',
