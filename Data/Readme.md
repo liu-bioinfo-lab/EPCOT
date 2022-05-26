@@ -28,4 +28,4 @@ bamCoverage --bam GM12878.bam -o GM12878_dnase.bigWig --outFileFormat bigwig --n
 # transform bigWig to numpy arrays saved as dictionary structure where the keys are chromosomes
 python dnase_processing.py GM12878_dnase.bigWig
 ```
-If you use our trained model to perform cross-cell type prediction on your own DNase-seq data, please check if your normalized DNase has a similar distribution with the DNase of our training cell lines and if they use the same platform.
+If you use our trained model to perform cross-cell type prediction on your own DNase-seq data, please check if your normalized DNase has a similar distribution with the DNase of our training cell lines (it is preferable that the training and testing cell types are in the same platform).
