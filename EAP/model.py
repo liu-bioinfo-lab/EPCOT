@@ -96,7 +96,7 @@ def build_transformer(args):
     )
 
 
-def build_pretrain_model_cage(args):
+def build_pretrain_model_enhancer(args):
     backbone = build_backbone(args)
     transformer = build_transformer(args)
     pretrain_model = Tranmodel(
