@@ -33,7 +33,8 @@ Please go to the directory [Data/](https://github.com/liu-bioinfo-lab/EPCOT/tree
 You can download our pre-training model trained on DNA sequence and DNase-seq or ATAC-seq from Google Drive
 ```
 pip install gdown
-gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output models/pretrain_dnase.pt
+gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output pretrain_dnase.pt
+
 ### This model is trained on ATAC-seq using the same four cell lines with DNase-seq
 gdown 1aMb3kVmaWZPUzqKmfZs9xWT-QLUGjQQd --output pretrain_atac.pt
 ```
