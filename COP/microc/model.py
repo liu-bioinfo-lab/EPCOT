@@ -52,7 +52,6 @@ class Tranmodel(nn.Module):
         return src
 
 
-
 class finetunemodel(nn.Module):
     def __init__(self,pretrain_model,hidden_dim,embed_dim,device,trunk,bins=600,in_dim=64,max_bin=100,crop=50,dilate=True):
         super().__init__()
@@ -62,8 +61,9 @@ class finetunemodel(nn.Module):
         self.attention_pool = AttentionPool(hidden_dim)
         self.crop=crop
         self.trunk=trunk
+        self.dilate=dilate
         self.project=nn.Sequential(
-            Rearrange('(b n) c -> b c n', n=bins*5),
+            Rearrange('(b n) c -> b c n', n=bins),
             nn.Conv1d(hidden_dim, hidden_dim, kernel_size=15, padding=7,groups=hidden_dim),
             nn.BatchNorm1d(hidden_dim),
             nn.Conv1d(hidden_dim, embed_dim, kernel_size=1),
@@ -74,7 +74,6 @@ class finetunemodel(nn.Module):
         self.cnn=nn.Sequential(
             nn.Conv1d(embed_dim, embed_dim, kernel_size=15, padding=7),
             nn.BatchNorm1d(embed_dim),
-            nn.MaxPool1d(kernel_size=5, stride=5),
             nn.ReLU(inplace=True),
             nn.Conv1d(embed_dim, embed_dim, kernel_size=1),
             nn.Dropout(0.2),
@@ -95,12 +94,13 @@ class finetunemodel(nn.Module):
             )
             self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=3)
         else:
-            raise ValueError('choose a trunk from LSTM, transformer')
+            raise ValueError('choose a trunk from LSTM, transformer.')
         self.distance_embed=nn.Embedding(max_bin+1,embed_dim)
-
-        self.dilate_tower=dilated_tower(embed_dim=embed_dim,in_channel=in_dim,kernel_size=7,dilate_rate=6)
-
-        self.prediction_head=nn.Linear(in_dim,1)
+        if self.dilate:
+            self.dilate_tower=dilated_tower(embed_dim=embed_dim,in_channel=in_dim,kernel_size=7,dilate_rate=6)
+            self.prediction_head = nn.Linear(in_dim, 1)
+        else:
+            self.prediction_head = nn.Linear(embed_dim, 1)
         self.dist_dropout=nn.Dropout(0.1)
         self.device=device
 
@@ -133,13 +133,20 @@ class finetunemodel(nn.Module):
             x, (h_n,h_c)=self.BiLSTM(x)
         elif self.trunk=='transformer':
             x=self.transformer(x)
+        # x=self.transformer(x)
+
+        ### shape:(b,200,256)
         dist_embed=self.dist_dropout(self.distance_embed(self.position_matrix(self.bins,b=b,maxbin=self.max_bin)))
         x=self.output_head(x,dist_embed,self.bins)
-        x = self.dilate_tower(x,self.crop)
+        if self.dilate:
+            x = self.dilate_tower(x,self.crop)
+        else:
+            x= x[:,self.crop:-self.crop,self.crop:-self.crop,:]
         x=rearrange(x,'b l n d -> b (l n) d')
         x=self.upper_tri(x,self.bins-2*self.crop)
         x=self.prediction_head(x)
         return x
+
 
 def build_backbone(args):
     model = CNN(args.num_class, args.seq_length, args.embedsize)
@@ -153,7 +160,7 @@ def build_transformer(args):
         num_encoder_layers=args.enc_layers,
         num_decoder_layers=args.dec_layers
     )
-def build_pretrain_model_hic(args):
+def build_pretrain_model_microc(args):
     backbone = build_backbone(args)
     transformer = build_transformer(args)
     pretrain_model = Tranmodel(
