@@ -58,7 +58,7 @@ def plot_cage(ax,val,chr,start,end,color='#17becf'):
     ax.set_xticklabels(np.arange(start,end,(end-start)//5))
     ax.margins(x=0)
 
-def pred_epis(model,chrom, start,end,dnase,fasta_extractor,device):
+def predict_epis(model,chrom, start,end,dnase,fasta_extractor,device):
     model.eval()
     inputs = generate_input(fasta_extractor,chrom, start, end, dnase).to(device)
     with torch.no_grad():
@@ -66,7 +66,7 @@ def pred_epis(model,chrom, start,end,dnase,fasta_extractor,device):
     pred_epi = pred_epi.detach().cpu().numpy()
     return pred_epi
 
-def pred_cage(model,chrom,start,end,dnase,fasta_extractor,device):
+def predict_cage(model,chrom,start,end,dnase,fasta_extractor,device):
     model.eval()
     input_start, input_end = start - 25000, end + 25000
     inputs = []
@@ -95,7 +95,7 @@ def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
     ax.set_xticks([])
     ax.set_yticks([])
 
-def pred_hic(model,chrom,start,end,dnase,fasta_extractor,device):
+def predict_hic(model,chrom,start,end,dnase,fasta_extractor,device):
     inputs = []
     for s in np.arange(start, end, 1000000):
         inputs.append(generate_input(fasta_extractor,chrom, s, s + 1000000, dnase))
