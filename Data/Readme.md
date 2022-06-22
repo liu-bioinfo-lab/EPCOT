@@ -25,7 +25,7 @@ samtools index GM12878.bam
 bamCoverage --bam GM12878.bam -o GM12878_dnase.bigWig --outFileFormat bigwig --normalizeUsing RPGC --effectiveGenomeSize 2559804523 
 --ignoreForNormalization chrX chrM --Offset 1 --binSize 1 --numberOfProcessors 24 --blackListFileName black_list.bed --skipNonCoveredRegions
 
-### transform bigWig to numpy sparse matrices which are saved as dictionary structure (the keys are chromosomes)
+### transform bigWig to numpy sparse matrices which are saved as python dictionary structure (the keys are chromosomes)
 python dnase_processing.py GM12878_dnase.bigWig
 ```
 If you use our trained model to perform cross-cell type prediction on your own DNase-seq data, please check if your normalized DNase has a similar distribution with the DNase of our training cell lines.
