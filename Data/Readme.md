@@ -27,4 +27,4 @@ bamCoverage --bam GM12878.bam -o GM12878_dnase.bigWig --outFileFormat bigwig --n
 ### transform bigWig to numpy sparse matrices which are saved as python dictionary structure (the keys are chromosomes)
 python dnase_processing.py GM12878_dnase.bigWig
 ```
-Some of RPGC normalized DNase-seq used in EPCOT training is available in [Google Drive](https://drive.google.com/drive/folders/1REE056hPXSTOt2nK6B6bpkwnnofAUdsE?usp=sharing). If you use our trained model to perform cross-cell type prediction on your own DNase-seq data, please check if your normalized DNase has a similar distribution with that of our training cell types.
+Some of our RPGC normalized DNase-seq used in EPCOT training is available in [Google Drive](https://drive.google.com/drive/folders/1REE056hPXSTOt2nK6B6bpkwnnofAUdsE?usp=sharing). If you use our trained model to perform cross-cell type prediction on your own DNase-seq data, please check if your normalized DNase has a similar distribution with that of our training cell types.
