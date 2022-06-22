@@ -14,8 +14,7 @@ An example of GM12878 with ENCODE accession numbers [ENCFF020WZB](https://www.en
 ### download bam files and blacklist from ENCODE
 wget -O GM12878_rep1.bam https://www.encodeproject.org/files/ENCFF020WZB/@@download/ENCFF020WZB.bam
 wget -O GM12878_rep2.bam https://www.encodeproject.org/files/ENCFF729UYK/@@download/ENCFF729UYK.bam
-wget -O black_list.bed.gz https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz
-gunzip black_list.bed.gz
+wget -O - https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz| gunzip -c > black_list.bed
 
 ### merge and index bam
 samtools merge GM12878.bam GM12878_rep*.bam
