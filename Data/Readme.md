@@ -11,7 +11,7 @@ Since the only cell-type specific inputs of EPCOT are DNase-seq profiles, we use
 
 An example of GM12878 with ENCODE accession numbers [ENCFF020WZB](https://www.encodeproject.org/experiments/ENCSR000EMT/) and [ENCFF729UYK](https://www.encodeproject.org/experiments/ENCSR000EMT/), and mapped read length of 36 is provided below.
 ```
-### download bam files and blacklist
+### download bam files and blacklist from ENCODE
 wget -O GM12878_rep1.bam https://www.encodeproject.org/files/ENCFF020WZB/@@download/ENCFF020WZB.bam
 wget -O GM12878_rep2.bam https://www.encodeproject.org/files/ENCFF729UYK/@@download/ENCFF729UYK.bam
 wget -O black_list.bed.gz https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz
