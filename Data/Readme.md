@@ -7,7 +7,7 @@ EPCOT takes inputs of one-hot representations of DNA sequences and DNase-seq pro
 * deeptools (3.5.1)
 
 
-Since the only cell-type specific inputs of EPCOT are DNase-seq profiles, we use [samtools](https://github.com/samtools/samtools) and [deepTools](https://github.com/deeptools/deepTools) bamCoverage's RPGC normalization to generate normalized bigWig files from bam files. The 'effectiveGenomeSize' in RPGC is calculated using [unique-kmers.py](https://github.com/dib-lab/khmer/blob/master/scripts/unique-kmers.py). 
+Since the only cell-type specific inputs of EPCOT are DNase-seq profiles, we use [samtools](https://github.com/samtools/samtools) and [deepTools](https://github.com/deeptools/deepTools) bamCoverage's RPGC normalization to generate normalized bigWig files from bam files. The parameter 'effectiveGenomeSize' in RPGC is calculated using [unique-kmers.py](https://github.com/dib-lab/khmer/blob/master/scripts/unique-kmers.py). 
 
 An example of GM12878 with ENCODE accession numbers [ENCFF020WZB](https://www.encodeproject.org/experiments/ENCSR000EMT/) and [ENCFF729UYK](https://www.encodeproject.org/experiments/ENCSR000EMT/), and mapped read length of 36 is provided below.
 ```
