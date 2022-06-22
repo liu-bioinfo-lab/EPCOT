@@ -115,7 +115,6 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor,device):
     for s in np.arange(start, end, 1000000):
         inputs.append(generate_input(fasta_extractor,chrom, s, s + 1000000, dnase))
     inputs = torch.stack(inputs).float().to(device)
-    model.eval()
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy()
     return pred_hic
@@ -128,7 +127,6 @@ def predict_microc(model,chrom,start,end,dnase,fasta_extractor,device):
     for s in np.arange(start, end, 600000):
         inputs.append(generate_input(fasta_extractor,chrom, s, s + 600000, dnase))
     inputs = torch.stack(inputs).float().to(device)
-    model.eval()
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy()
     return pred_hic
