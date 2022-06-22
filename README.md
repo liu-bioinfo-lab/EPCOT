@@ -35,7 +35,7 @@ You can download our pre-training model trained on DNA sequence and DNase-seq or
 pip install gdown
 gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output pretrain_dnase.pt
 
-### This model is trained on ATAC-seq using the same four cell lines with DNase-seq
+### we also provide the pre-training model trained on ATAC-seq using the same four cell lines with DNase-seq
 gdown 1aMb3kVmaWZPUzqKmfZs9xWT-QLUGjQQd --output pretrain_atac.pt
 ```
 
