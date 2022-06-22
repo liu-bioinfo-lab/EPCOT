@@ -23,6 +23,8 @@ def pad_signal_matrix(matrix, pad_len=300):
 
 
 def generate_input(fasta_extractor,chrom, start, end, dnase):
+    if start>=end:
+        raise ValueError('the start of genomic region should be small than the end.')
     target_interval = kipoiseq.Interval(chrom, start, end)
     sequence_one_hot = one_hot_encode(fasta_extractor.extract(target_interval))
     sequence_matrix = sequence_one_hot.reshape(-1, 1000, 4).swapaxes(1, 2)
@@ -37,6 +39,13 @@ def generate_input(fasta_extractor,chrom, start, end, dnase):
     inputs = torch.tensor(np.concatenate((seq_interest, dnase_interest), axis=1)).float()
     return inputs
 
+def plot_atac(ax,val,color='#17becf'):
+    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.margins(x=0)
+    ax.set_xticks([])
 
 def plot_bindings(ax, val, chr, start, end, color='#17becf'):
     ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
@@ -59,6 +68,8 @@ def plot_cage(ax,val,chr,start,end,color='#17becf'):
     ax.margins(x=0)
 
 def predict_epis(model,chrom, start,end,dnase,fasta_extractor,device):
+    if (end-start)%1000:
+        raise ValueError('the length of the input genomic region should be divisible by 1000')
     model.eval()
     inputs = generate_input(fasta_extractor,chrom, start, end, dnase).to(device)
     with torch.no_grad():
@@ -67,6 +78,8 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor,device):
     return pred_epi
 
 def predict_cage(model,chrom,start,end,dnase,fasta_extractor,device):
+    if (end-start)%200000:
+        raise ValueError('the length of the input genomic region should be divisible by 200000')
     model.eval()
     input_start, input_end = start - 25000, end + 25000
     inputs = []
@@ -96,9 +109,24 @@ def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
     ax.set_yticks([])
 
 def predict_hic(model,chrom,start,end,dnase,fasta_extractor,device):
+    if (end-start)%1000000:
+        raise ValueError('the length of the input genomic region should be divisible by 1000000')
     inputs = []
     for s in np.arange(start, end, 1000000):
         inputs.append(generate_input(fasta_extractor,chrom, s, s + 1000000, dnase))
+    inputs = torch.stack(inputs).float().to(device)
+    model.eval()
+    with torch.no_grad():
+        pred_hic = model(inputs).detach().cpu().numpy()
+    return pred_hic
+
+
+def predict_microc(model,chrom,start,end,dnase,fasta_extractor,device):
+    if (end-start)%600000:
+        raise ValueError('the length of the input genomic region should be divisible by 600000')
+    inputs = []
+    for s in np.arange(start, end, 600000):
+        inputs.append(generate_input(fasta_extractor,chrom, s, s + 600000, dnase))
     inputs = torch.stack(inputs).float().to(device)
     model.eval()
     with torch.no_grad():
