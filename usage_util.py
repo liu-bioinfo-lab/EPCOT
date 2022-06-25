@@ -114,6 +114,7 @@ def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
     ax.set_yticks([])
 
 def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
+    model.eval()
     if (end-start)!=1000000:
         raise ValueError('Please input a 1Mb region')
     inputs=generate_input(fasta_extractor,chrom,start,end, dnase)
@@ -125,6 +126,7 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
 
 
 def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
+    model.eval()
     if (end-start)!=600000:
         raise ValueError('Please input a 600kb region')
     inputs = generate_input(fasta_extractor, chrom, start, end, dnase)
