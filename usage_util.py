@@ -74,7 +74,8 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     if (end-start)%1000:
         raise ValueError('the length of the input genomic region should be divisible by 1000')
     model.eval()
-    inputs = generate_input(fasta_extractor,chrom, start, end, dnase).to(model.device)
+    device=next(model.parameters()).device
+    inputs = generate_input(fasta_extractor,chrom, start, end, dnase).to(device)
     with torch.no_grad():
         pred_epi = torch.sigmoid(model(inputs))
     pred_epi = pred_epi.detach().cpu().numpy()
@@ -88,7 +89,8 @@ def predict_cage(model,chrom,start,end,dnase,fasta_extractor):
     inputs = []
     for s in range(input_start, input_end - 200000, 200000):
         e = s + 250000
-        cage_inputs = generate_input(fasta_extractor,chrom, s, e, dnase).to(model.device)
+        device = next(model.parameters()).device
+        cage_inputs = generate_input(fasta_extractor,chrom, s, e, dnase).to(device)
         inputs.append(cage_inputs)
     inputs = torch.stack(inputs)
     with torch.no_grad():
@@ -115,7 +117,8 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
     if (end-start)!=1000000:
         raise ValueError('Please input a 1Mb region')
     inputs=generate_input(fasta_extractor,chrom,start,end, dnase)
-    inputs=torch.tensor(inputs).unsqueeze(0).float().to(model.device)
+    device = next(model.parameters()).device
+    inputs=torch.tensor(inputs).unsqueeze(0).float().to(device)
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy()
     return pred_hic
@@ -125,7 +128,8 @@ def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
     if (end-start)!=600000:
         raise ValueError('Please input a 600kb region')
     inputs = generate_input(fasta_extractor, chrom, start, end, dnase)
-    inputs = torch.tensor(inputs).unsqueeze(0).float().to(model.device)
+    device = next(model.parameters()).device
+    inputs = torch.tensor(inputs).unsqueeze(0).float().to(device)
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy()
     return pred_hic
