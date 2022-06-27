@@ -1,5 +1,5 @@
 #functions used in
-
+import argparse
 import kipoiseq
 from kipoiseq import Interval
 import numpy as np
@@ -70,6 +70,59 @@ def plot_cage(ax,val,chr,start,end,color='#17becf'):
     ax.set_xticklabels(np.arange(start,end,(end-start)//5))
     ax.margins(x=0)
 
+### arguments for pre-training model
+def parser_args():
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--num_class', default=245, type=int)
+    parser.add_argument('--seq_length', default=1600, type=int)
+    parser.add_argument('--embedsize', default=320, type=int)
+    parser.add_argument('--nheads', default=4, type=int)
+    parser.add_argument('--hidden_dim', default=512, type=int)
+    parser.add_argument('--dim_feedforward', default=1024, type=int)
+    parser.add_argument('--enc_layers', default=1, type=int)
+    parser.add_argument('--dec_layers', default=2, type=int)
+    parser.add_argument('--dropout', default=0.2, type=float)
+    parser.add_argument('--fea_pos', default=False, action='store_true')
+    parser.add_argument('--load_backbone', default=False)
+    args, unknown = parser.parse_known_args()
+    return args,parser
+def get_args():
+    args,_ = parser_args()
+    return args,_
+### arguments for downstream model to predict 1kb-resolution CAGE-seq
+def parser_args_cage(parent_parser):
+    parser=argparse.ArgumentParser(parents=[parent_parser])
+    parser.add_argument('--bins', type=int, default=250)
+    parser.add_argument('--crop', type=int, default=25)
+    parser.add_argument('--pretrain_path', type=str, default='none')
+    parser.add_argument('--embed_dim', default=360, type=int)
+    parser.add_argument('--mode', type=str, default='transformer')
+    parser.add_argument('--fine_tune', default=False, action='store_true')
+    args, unknown = parser.parse_known_args()
+    return args
+### arguments for downstream model to predict 5kb-resolution Hi-C and ChIA-PET
+def parser_args_hic(parent_parser):
+    parser=argparse.ArgumentParser(parents=[parent_parser])
+    parser.add_argument('--bins', type=int, default=200)
+    parser.add_argument('--crop', type=int, default=4)
+    parser.add_argument('--pretrain_path', type=str, default='none')
+    parser.add_argument('--embed_dim', default=256, type=int)
+    parser.add_argument('--trunk',  type=str, default='transformer')
+    parser.add_argument('--fine_tune', default=False, action='store_true')
+    args, unknown = parser.parse_known_args()
+    return args
+### arguments for downstream model to predict 1kb-resolution Micro-C
+def parser_args_microc(parent_parser):
+    parser=argparse.ArgumentParser(parents=[parent_parser])
+    parser.add_argument('--bins', type=int, default=600)
+    parser.add_argument('--crop', type=int, default=50)
+    parser.add_argument('--pretrain_path', type=str, default='none')
+    parser.add_argument('--embed_dim', default=256, type=int)
+    parser.add_argument('--trunk',  type=str, default='transformer')
+    parser.add_argument('--fine_tune', default=False, action='store_true')
+    args, unknown = parser.parse_known_args()
+    return args
+
 def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     if (end-start)%1000:
         raise ValueError('the length of the input genomic region should be divisible by 1000')
@@ -118,7 +171,7 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
     device = next(model.parameters()).device
     inputs=inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
-        pred_hic = model(inputs).detach().cpu().numpy()
+        pred_hic = model(inputs).detach().cpu().numpy().squeeze()
     return pred_hic
 
 
@@ -129,5 +182,6 @@ def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
     device = next(model.parameters()).device
     inputs = inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
-        pred_hic = model(inputs).detach().cpu().numpy()
-    return pred_hic
+        pred_microc = model(inputs).detach().cpu().numpy().squeeze()
+    return pred_microc
+
