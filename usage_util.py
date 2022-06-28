@@ -3,7 +3,29 @@ import argparse
 import kipoiseq
 from kipoiseq import Interval
 import numpy as np
-import torch
+import torch,pickle
+from pretraining.model import build_model
+from GEP.cage.model import build_pretrain_model_cage
+from COP.hic.model import build_pretrain_model_hic
+from COP.microc.model import build_pretrain_model_microc
+
+
+def load_input_dnase(pickle_file):
+    with open(pickle_file,'rb') as f:
+        dnase=pickle.load(f)
+    return dnase
+
+def read_dnase_pickle(dnase_in_pickle,chrom):
+    try:
+        chrom_keys = dnase_in_pickle.keys()
+        if chrom not in chrom_keys:
+            if isinstance(chrom,str):
+                chrom=int(chrom)
+        input_dnase=dnase_in_pickle[chrom].toarray().squeeze()
+    except Exception:
+        raise ValueError('Please enter a correct chromosome')
+    return input_dnase
+
 
 
 def one_hot_encode(sequence):
@@ -123,11 +145,45 @@ def parser_args_microc(parent_parser):
     args, unknown = parser.parse_known_args()
     return args
 
+args,parser = get_args()
+cage_args=parser_args_cage(parser)
+hic_args=parser_args_hic(parser)
+microc_args=parser_args_microc(parser)
+def load_pre_training_model(saved_model_path,device):
+    pretrain_model = build_model(args)
+    pretrain_model.to(device)
+    pretrain_model.eval()
+    pretrain_model.load_state_dict(torch.load(saved_model_path))
+    return pretrain_model
+
+def load_cage_model(saved_model_path,device):
+    cage_model = build_pretrain_model_cage(cage_args)
+    cage_model.to(device)
+    cage_model.eval()
+    cage_model.load_state_dict(torch.load(saved_model_path))
+    return cage_model
+
+def load_hic_model(saved_model_path,device):
+    hic_model = build_pretrain_model_hic(hic_args)
+    hic_model.to(device)
+    hic_model.eval()
+    hic_model.load_state_dict(torch.load(saved_model_path))
+    return hic_model
+
+def load_microc_model(saved_model_path,device):
+    microc_model = build_pretrain_model_hic(microc_args)
+    microc_model.to(device)
+    microc_model.eval()
+    microc_model.load_state_dict(torch.load(saved_model_path))
+    return microc_model
+
+
 def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     if (end-start)%1000:
         raise ValueError('the length of the input genomic region should be divisible by 1000')
+    input_dnase=read_dnase_pickle(dnase,chrom[3:])
     device=next(model.parameters()).device
-    inputs = generate_input(fasta_extractor,chrom, start, end, dnase).to(device)
+    inputs = generate_input(fasta_extractor,chrom, start, end, input_dnase).to(device)
     with torch.no_grad():
         pred_epi = torch.sigmoid(model(inputs))
     pred_epi = pred_epi.detach().cpu().numpy()
@@ -136,12 +192,13 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
 def predict_cage(model,chrom,start,end,dnase,fasta_extractor):
     if (end-start)%200000:
         raise ValueError('the length of the input genomic region should be divisible by 200000')
+    input_dnase = read_dnase_pickle(dnase, chrom[3:])
     input_start, input_end = start - 25000, end + 25000
     inputs = []
     for s in range(input_start, input_end - 200000, 200000):
         e = s + 250000
         device = next(model.parameters()).device
-        cage_inputs = generate_input(fasta_extractor,chrom, s, e, dnase).to(device)
+        cage_inputs = generate_input(fasta_extractor,chrom, s, e, input_dnase).to(device)
         inputs.append(cage_inputs)
     inputs = torch.stack(inputs)
     with torch.no_grad():
@@ -167,7 +224,8 @@ def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
 def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
     if (end-start)!=1000000:
         raise ValueError('Please input a 1Mb region')
-    inputs=generate_input(fasta_extractor,chrom,start,end, dnase)
+    input_dnase = read_dnase_pickle(dnase, chrom[3:])
+    inputs=generate_input(fasta_extractor,chrom,start,end, input_dnase)
     device = next(model.parameters()).device
     inputs=inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
@@ -178,7 +236,8 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
 def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
     if (end-start)!=600000:
         raise ValueError('Please input a 600kb region')
-    inputs = generate_input(fasta_extractor, chrom, start, end, dnase)
+    input_dnase = read_dnase_pickle(dnase, chrom[3:])
+    inputs = generate_input(fasta_extractor, chrom, start, end, input_dnase)
     device = next(model.parameters()).device
     inputs = inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
