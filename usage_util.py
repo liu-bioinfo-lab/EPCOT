@@ -171,7 +171,7 @@ def load_hic_model(saved_model_path,device):
     return hic_model
 
 def load_microc_model(saved_model_path,device):
-    microc_model = build_pretrain_model_hic(microc_args)
+    microc_model = build_pretrain_model_microc(microc_args)
     microc_model.to(device)
     microc_model.eval()
     microc_model.load_state_dict(torch.load(saved_model_path))
