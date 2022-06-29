@@ -230,6 +230,7 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
     inputs=inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy().squeeze()
+    pred_hic=complete_mat(arraytouptri(pred_hic.squeeze(), hic_args))
     return pred_hic
 
 
@@ -242,5 +243,6 @@ def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
     inputs = inputs.unsqueeze(0).float().to(device)
     with torch.no_grad():
         pred_microc = model(inputs).detach().cpu().numpy().squeeze()
+    pred_microc=complete_mat(arraytouptri(pred_microc.squeeze(), microc_args))
     return pred_microc
 
