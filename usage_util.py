@@ -27,7 +27,7 @@ def read_dnase_pickle(dnase_in_pickle,chrom):
     return input_dnase
 
 def search_tf(tf):
-    with open('Profiles/epigenomes.txt', 'r') as f:
+    with open('EPCOT/Profiles/epigenomes.txt', 'r') as f:
         epigenomes = f.read().splitlines()
     try:
         tf_idx= epigenomes.index(tf)
