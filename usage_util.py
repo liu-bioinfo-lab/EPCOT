@@ -32,7 +32,7 @@ def search_tf(tf):
     try:
         tf_idx= epigenomes.index(tf)
     except Exception:
-        raise ValueError("please enter a TF in the list of predicted TFs")
+        raise ValueError("please specify a TF in the list of predicted TFs")
     return tf_idx
 
 
