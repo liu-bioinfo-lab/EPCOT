@@ -26,6 +26,14 @@ def read_dnase_pickle(dnase_in_pickle,chrom):
         raise ValueError('Please enter a correct chromosome')
     return input_dnase
 
+def search_tf(tf):
+    with open('Profiles/epigenomes.txt', 'r') as f:
+        epigenomes = f.read().splitlines()
+    try:
+        tf_idx= epigenomes.index(tf)
+    except Exception:
+        raise ValueError("please enter a TF in the list of predicted TFs")
+    return tf_idx
 
 
 def one_hot_encode(sequence):
@@ -153,7 +161,7 @@ def load_pre_training_model(saved_model_path,device):
     pretrain_model = build_model(args)
     pretrain_model.to(device)
     pretrain_model.eval()
-    pretrain_model.load_state_dict(torch.load(saved_model_path))
+    pretrain_model.load_state_dict(torch.load(saved_model_path,map_location=device))
     return pretrain_model
 
 def load_cage_model(saved_model_path,device):
