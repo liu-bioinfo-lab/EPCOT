@@ -67,6 +67,7 @@ def load_data(data,ref_data,dnase_data,hic_data,chroms):
         temp=hic_data[chr][s+args.crop:e-args.crop,s+args.crop:e-args.crop].toarray()
         label.append(temp)
     input= torch.stack(input)
+
     label= torch.tensor(upper_tri(np.stack(label)))
     return input.float().to(device),label.float().to(device)
 
@@ -78,11 +79,17 @@ def main():
     model.cuda()
     criterion= torch.nn.MSELoss()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
-    chroms = [str(i) for i in range(1, 23)]
-    test_chrs=['3','11','17']
+    # chroms = [str(i) for i in range(1, 23)]
+    # test_chrs=['3','11','17']
+    # valid_chrs=['9','16']
+    # cl='HepG2'
+    #
+    chroms = [str(i) for i in range(1, 20)]
+    test_chrs=['3','11']
     valid_chrs=['9','16']
+    cl='ES-E14'
     train_chrs=list(set(chroms)-set(test_chrs)-set(valid_chrs))
-    cl='HepG2'
+
     dnase_data, ref_data,hic_data=prepare_train_data(cl,chroms)
 
 
@@ -125,6 +132,9 @@ def main():
         pccs=[]
         spearmans=[]
         model.eval()
+        for m in model.modules():
+            if m.__class__.__name__.startswith('BatchNorm'):
+                m.train()
         for step, input_indices in enumerate(valid_loader):
             t = time.time()
             with torch.no_grad():
@@ -165,11 +175,12 @@ def main():
                        'models/%s_%s_scratch.pt' % (cl, args.bins))
             if args.test:
                 testing_losses = []
-                pred_eval = []
-                target_eval = []
                 pccs=[]
                 spearmans=[]
                 model.eval()
+                for m in model.modules():
+                    if m.__class__.__name__.startswith('BatchNorm'):
+                        m.train()
                 with torch.no_grad():
                     for step, input_indices in enumerate(test_loader):
                         t = time.time()
