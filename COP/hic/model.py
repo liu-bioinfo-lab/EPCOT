@@ -6,42 +6,42 @@ from hic.transformer import Transformer
 from einops import rearrange
 from hic.layers import dilated_tower,AttentionPool,CNN
 from einops.layers.torch import Rearrange
-class GroupWiseLinear(nn.Module):
-    def __init__(self, num_class, hidden_dim, bias=True):
-        super().__init__()
-        self.num_class = num_class
-        self.hidden_dim = hidden_dim
-        self.bias = bias
-        self.W = nn.Parameter(torch.Tensor(1, num_class, hidden_dim))
-        if bias:
-            self.b = nn.Parameter(torch.Tensor(1, num_class))
-        self.reset_parameters()
-    def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.W.size(2))
-        for i in range(self.num_class):
-            self.W[0][i].data.uniform_(-stdv, stdv)
-        if self.bias:
-            for i in range(self.num_class):
-                self.b[0][i].data.uniform_(-stdv, stdv)
-    def forward(self, x):
-        x = (self.W * x).sum(-1)
-        if self.bias:
-            x = x + self.b
-        return x
+# class GroupWiseLinear(nn.Module):
+#     def __init__(self, num_class, hidden_dim, bias=True):
+#         super().__init__()
+#         self.num_class = num_class
+#         self.hidden_dim = hidden_dim
+#         self.bias = bias
+#         self.W = nn.Parameter(torch.Tensor(1, num_class, hidden_dim))
+#         if bias:
+#             self.b = nn.Parameter(torch.Tensor(1, num_class))
+#         self.reset_parameters()
+#     def reset_parameters(self):
+#         stdv = 1. / math.sqrt(self.W.size(2))
+#         for i in range(self.num_class):
+#             self.W[0][i].data.uniform_(-stdv, stdv)
+#         if self.bias:
+#             for i in range(self.num_class):
+#                 self.b[0][i].data.uniform_(-stdv, stdv)
+#     def forward(self, x):
+#         x = (self.W * x).sum(-1)
+#         if self.bias:
+#             x = x + self.b
+#         return x
 
 class Tranmodel(nn.Module):
-    def __init__(self, backbone, transfomer, num_class):
+    def __init__(self, backbone, transfomer):
         super().__init__()
         self.backbone = backbone
         self.transformer = transfomer
-        self.num_class = num_class
+        # self.num_class = num_class
         feature_pos=backbone._n_channels
         hidden_dim = transfomer.d_model
         self.feature_pos_encoding = nn.Parameter(torch.randn(1, hidden_dim, feature_pos))
-        self.label_input = torch.Tensor(np.arange(num_class)).view(1, -1).long()
+        # self.label_input = torch.Tensor(np.arange(num_class)).view(1, -1).long()
         self.input_proj = nn.Conv1d(backbone.num_channels, hidden_dim, kernel_size=1)
-        self.query_embed = nn.Embedding(num_class, hidden_dim)
-        self.fc = GroupWiseLinear(num_class, hidden_dim, bias=True)
+        # self.query_embed = nn.Embedding(num_class, hidden_dim)
+        # self.fc = GroupWiseLinear(num_class, hidden_dim, bias=True)
     def forward(self, input,fea_pos=False):
         input=rearrange(input,'b n c l -> (b n) c l')
         src = self.backbone(input)
@@ -141,8 +141,8 @@ class finetunemodel(nn.Module):
         x=self.prediction_head(x)
         return x
 
-def build_backbone(args):
-    model = CNN(args.num_class, args.seq_length, args.embedsize)
+def build_backbone():
+    model = CNN()
     return model
 def build_transformer(args):
     return Transformer(
@@ -154,12 +154,12 @@ def build_transformer(args):
         num_decoder_layers=args.dec_layers
     )
 def build_pretrain_model_hic(args):
-    backbone = build_backbone(args)
+    backbone = build_backbone()
     transformer = build_transformer(args)
     pretrain_model = Tranmodel(
             backbone=backbone,
-            transfomer=transformer,
-            num_class=args.num_class,
+            transfomer=transformer
+            # num_class=args.num_class,
         )
     if args.pretrain_path != 'none':
         print('load pre-training model: '+args.pretrain_path)
