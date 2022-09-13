@@ -34,31 +34,34 @@ class Tranmodel(nn.Module):
         self.backbone = backbone
         self.transformer = transfomer
         self.num_class = num_class
-        feature_pos=backbone._n_channels
         hidden_dim = transfomer.d_model
-        self.feature_pos_encoding = nn.Parameter(torch.randn(1, hidden_dim, feature_pos))
         self.label_input = torch.Tensor(np.arange(num_class)).view(1, -1).long()
         self.input_proj = nn.Conv1d(backbone.num_channels, hidden_dim, kernel_size=1)
         self.query_embed = nn.Embedding(num_class, hidden_dim)
         self.fc = GroupWiseLinear(num_class, hidden_dim, bias=True)
 
-    def forward(self, input,fea_pos=False):
+    def forward(self, input):
         src = self.backbone(input)
         label_inputs=self.label_input.repeat(src.size(0),1).cuda()
         label_embed=self.query_embed(label_inputs)
         src=self.input_proj(src)
-        if fea_pos:
-            src+=self.feature_pos_encoding
         hs = self.transformer(src, label_embed)
         out = self.fc(hs)
         return out
 
 def build_backbone(args):
-    model = CNN(args.num_class, args.seq_length, args.embedsize)
+    model = CNN()
     if args.load_backbone:
         # load trained backbone
-        model_path='models/backbone_%s.pt'%args.ac_data
-        model.load_state_dict(torch.load(model_path, map_location='cpu'))
+        model_path='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/experiment/models/checkpoint1_cnn1_dnase_norm.pt'
+        print(model_path)
+        # model_path='models/backbone_%s.pt'%args.ac_data
+
+        model_dict = model.state_dict()
+        backbone_dict = torch.load(model_path, map_location='cpu')
+        backbone_dict = {k: v for k, v in backbone_dict.items() if k in model_dict}
+        model_dict.update(backbone_dict)
+        model.load_state_dict(model_dict)
     return model
 def build_transformer(args):
     return Transformer(
