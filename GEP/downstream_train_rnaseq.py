@@ -109,14 +109,10 @@ def main():
         pred_eval = np.concatenate(pred_eval, axis=0)
         target_eval = np.concatenate(target_eval, axis=0)
         auc = metrics.roc_auc_score(target_eval, pred_eval)
-        print(auc)
         train_loss = np.average(training_losses)
         print('Epoch: {} LR: {:.8f} train_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], train_loss))
         valid_loss = np.average(validation_losses)
         print('Epoch: {} LR: {:.8f} valid_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], valid_loss))
-
-        with open('log_%s_%s.txt'%(args.backbone_type,args.ac_data),'a') as f:
-            f.write('Epoch: %s, LR: %s, train_loss: %s, valid_loss: %s\n'%(epoch, optimizer.param_groups[0]['lr'], train_loss,valid_loss))
         if valid_loss < best_loss:
             print('save model')
             torch.save(model.state_dict(),
@@ -148,8 +144,6 @@ def main():
                     ap=metrics.average_precision_score(target_eval, pred_eval)
                     test_loss = np.average(testing_losses)
                     print(auc, ap)
-                    with open('log_%s_%s.txt'%(args.backbone_type,args.ac_data), 'a') as f:
-                        f.write('cl: %s, AUC: %s, AP: %s, loss: %s\n'%(cl,auc,ap,test_loss))
 
 if __name__=='__main__':
     main()
