@@ -174,8 +174,14 @@ def load_cage_model(saved_model_path,device):
 def load_hic_model(saved_model_path,device):
     hic_model = build_pretrain_model_hic(hic_args)
     hic_model.to(device)
+
+    model_dict = hic_model.state_dict()
+    downstream_dict = torch.load(saved_model_path, map_location='cpu')
+    downstream_dict = {k: v for k, v in downstream_dict.items() if k in model_dict}
+    model_dict.update(downstream_dict)
+    hic_model.load_state_dict(model_dict)
     hic_model.eval()
-    hic_model.load_state_dict(torch.load(saved_model_path))
+
     return hic_model
 
 def load_microc_model(saved_model_path,device):
@@ -190,7 +196,7 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     if (end-start)%1000:
         raise ValueError('the length of the input genomic region should be divisible by 1000')
     input_dnase=read_dnase_pickle(dnase,chrom[3:])
-    device=next(model.parameters()).device
+    device=next(model.parameters())
     inputs = generate_input(fasta_extractor,chrom, start, end, input_dnase).to(device)
     with torch.no_grad():
         pred_epi = torch.sigmoid(model(inputs))
@@ -229,13 +235,17 @@ def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
     ax.set_xticks([])
     ax.set_yticks([])
 
-def predict_hic(model,chrom,start,end,dnase,fasta_extractor):
+def predict_hic(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=False):
     if (end-start)!=1000000:
         raise ValueError('Please input a 1Mb region')
     input_dnase = read_dnase_pickle(dnase, chrom[3:])
     inputs=generate_input(fasta_extractor,chrom,start,end, input_dnase)
     device = next(model.parameters()).device
     inputs=inputs.unsqueeze(0).float().to(device)
+    if cross_cell_type:
+        for m in model.modules():
+            if m.__class__.__name__.startswith('BatchNorm'):
+                m.train()
     with torch.no_grad():
         pred_hic = model(inputs).detach().cpu().numpy().squeeze()
     pred_hic=complete_mat(arraytouptri(pred_hic.squeeze(), hic_args))
