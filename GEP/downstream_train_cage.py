@@ -13,9 +13,6 @@ from cage_dataset import inputDataset,clDataset
 from scipy.stats import pearsonr,spearmanr
 def parser_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_class', default=245, type=int)
-    parser.add_argument('--seq_length', default=1600, type=int)
-    parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--bins', type=int, default=250)
     parser.add_argument('--crop', type=int, default=25)
     parser.add_argument('--nheads', default=4, type=int)
@@ -25,11 +22,9 @@ def parser_args():
     parser.add_argument('--enc_layers', default=1, type=int)
     parser.add_argument('--dec_layers', default=2, type=int)
     parser.add_argument('--dropout', default=0.2, type=float)
-    parser.add_argument('--backbone_type', default='cnn1', type=str)
     parser.add_argument('--epochs', default=40, type=int)
     parser.add_argument('--accum_iter', default=16, type=int)
-    parser.add_argument('--fea_pos', default=False, action='store_true')
-    parser.add_argument('--lr', default=1e-4, type=float)
+    parser.add_argument('--lr', default=2e-4, type=float)
     parser.add_argument('--shuffle_dataset', default=True, action='store_false', help='model testing')
     parser.add_argument('--batchsize', type=int, default=2)
     parser.add_argument('--test', default=True, action='store_false', help='model testing')
@@ -37,7 +32,7 @@ def parser_args():
     parser.add_argument('--fine_tune', default=False, action='store_true')
     parser.add_argument('--load_model', default=False, action='store_true')
     parser.add_argument('--mode', type=str, default='transformer',choices=['transformer','lstm'])
-    parser.add_argument('--pretrain_path', type=str, default='none')
+    parser.add_argument('--pretrain_path', type=str, default='none',help='path to the saved pre-training model')
     # parser.add_argument('--pretrain_path',type=str,default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/pretrain/models/checkpoint_pretrain_cnn1_dnase_norm.pt')
     args = parser.parse_args()
     return args
@@ -85,13 +80,18 @@ def main():
     all_cls=['GM12878','K562','HUVEC','IMR-90','H1','A549','HepG2','CD14+']
     traincl_index=[0,1,2,3]
     testcl_index=[4,5,6,7]
-
     chroms=[str(i) for i in range(1,23)]
 
+    # all_cls=['CD14+CD25+','spleen','thymus','lung','cerebellum']
+    # traincl_index=[0,1,2]
+    # testcl_index=[3,4]
+    # chroms=[i for i in range(1,20)]
+
     # load input regions
+    # input_locs = np.load('/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/250kb/input_region_mm.npy')
     input_locs=np.load('cage/input_region.npy')
 
-    dnase_data, ref_data,cage_data=prepare_train_data(all_cls)
+    dnase_data, ref_data,cage_data=prepare_train_data(all_cls,chroms)
 
 
     train_index,valid_index,test_index=shuffle_data(dataset_size=input_locs.shape[0])
@@ -143,7 +143,7 @@ def main():
 
         train_loss = np.average(training_losses)
         print('Epoch: {} LR: {:.8f} train_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], train_loss))
-        with open('log_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
+        with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
             f.write('Epoch: %s, LR: %s, train_loss: %s\n' % (
             epoch, optimizer.param_groups[0]['lr'], train_loss))
         model.eval()
@@ -170,7 +170,7 @@ def main():
             pred_eval = np.concatenate(pred_eval, axis=0).squeeze()
             target_eval = np.concatenate(target_eval, axis=0).squeeze()
             pcc, _ = pearsonr(pred_eval.flatten(), target_eval.flatten())
-            with open('log_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
+            with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
                 f.write('cl %s, pcc: %s\n' % (all_cls[cidx],pcc))
             pccs.append(pcc)
         criter=np.mean(pccs)
@@ -199,7 +199,7 @@ def main():
                     target_eval = np.concatenate(target_eval, axis=0).squeeze()
                     pcc, _ = pearsonr(pred_eval.flatten(), target_eval.flatten())
                     pccs.append(pcc)
-                    with open('log_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
+                    with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
                         f.write('cl: %s, pcc: %s\n' % (all_cls[cidx], pcc))
 
 if __name__=="__main__":
