@@ -37,7 +37,7 @@ def parser_args():
     parser.add_argument('--ac_data', type=str, default='dnase_norm')
     parser.add_argument('--fine_tune', default=False, action='store_true')
     parser.add_argument('--trunk',  type=str, default='transformer')
-    parser.add_argument('--pretrain_path',type=str,default='none')
+    parser.add_argument('--pretrain_path',type=str,default='none',help='path to the pre-training model')
     # parser.add_argument('--pretrain_path',type=str,default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/pretrain/models/checkpoint_pretrain_cnn1_dnase_norm.pt')
     args = parser.parse_args()
     return args
@@ -79,15 +79,15 @@ def main():
     model.cuda()
     criterion= torch.nn.MSELoss()
     optimizer = optim.AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,weight_decay=1e-6)
-    # chroms = [str(i) for i in range(1, 23)]
-    # test_chrs=['3','11','17']
-    # valid_chrs=['9','16']
-    # cl='HepG2'
-    #
-    chroms = [str(i) for i in range(1, 20)]
-    test_chrs=['3','11']
+    chroms = [str(i) for i in range(1, 23)]
+    test_chrs=['3','11','17']
     valid_chrs=['9','16']
-    cl='ES-E14'
+    cl='GM12878'
+
+    # chroms = [str(i) for i in range(1, 20)]
+    # test_chrs=['3','11']
+    # valid_chrs=['9','16']
+    # cl='ES-E14'
     train_chrs=list(set(chroms)-set(test_chrs)-set(valid_chrs))
 
     dnase_data, ref_data,hic_data=prepare_train_data(cl,chroms)
@@ -132,9 +132,6 @@ def main():
         pccs=[]
         spearmans=[]
         model.eval()
-        for m in model.modules():
-            if m.__class__.__name__.startswith('BatchNorm'):
-                m.train()
         for step, input_indices in enumerate(valid_loader):
             t = time.time()
             with torch.no_grad():
@@ -172,15 +169,12 @@ def main():
             best_criter = criter
             print('save model')
             torch.save(model.state_dict(),
-                       'models/%s_%s_scratch.pt' % (cl, args.bins))
+                       'models/%s_%s.pt' % (cl, args.bins))
             if args.test:
                 testing_losses = []
                 pccs=[]
                 spearmans=[]
                 model.eval()
-                for m in model.modules():
-                    if m.__class__.__name__.startswith('BatchNorm'):
-                        m.train()
                 with torch.no_grad():
                     for step, input_indices in enumerate(test_loader):
                         t = time.time()
