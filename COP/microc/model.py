@@ -138,7 +138,6 @@ def build_pretrain_model_microc(args):
     pretrain_model = Tranmodel(
             backbone=backbone,
             transfomer=transformer,
-            num_class=args.num_class,
         )
     if args.pretrain_path != 'none':
         print('load pre-training model: '+args.pretrain_path)
