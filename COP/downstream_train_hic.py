@@ -13,9 +13,6 @@ from hic_dataset import hic_dataset
 from scipy.stats import pearsonr,spearmanr
 def parser_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_class', default=245, type=int)
-    parser.add_argument('--seq_length', default=1600, type=int)
-    parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--bins', type=int, default=200)
     parser.add_argument('--crop', type=int, default=4)
     parser.add_argument('--nheads', default=4, type=int)
@@ -25,10 +22,8 @@ def parser_args():
     parser.add_argument('--enc_layers', default=1, type=int)
     parser.add_argument('--dec_layers', default=2, type=int)
     parser.add_argument('--dropout', default=0.2, type=float)
-    parser.add_argument('--backbone_type', default='cnn1', type=str)
     parser.add_argument('--epochs', default=40, type=int)
     parser.add_argument('--accum_iter', default=2, type=int)
-    parser.add_argument('--fea_pos', default=False, action='store_true')
     parser.add_argument('--lr', default=3e-4, type=float)
     parser.add_argument('--shuffle_dataset', default=True, action='store_false', help='model testing')
     parser.add_argument('--batchsize', type=int, default=1)
