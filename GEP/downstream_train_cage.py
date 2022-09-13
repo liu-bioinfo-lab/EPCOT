@@ -170,8 +170,6 @@ def main():
             pred_eval = np.concatenate(pred_eval, axis=0).squeeze()
             target_eval = np.concatenate(target_eval, axis=0).squeeze()
             pcc, _ = pearsonr(pred_eval.flatten(), target_eval.flatten())
-            with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
-                f.write('cl %s, pcc: %s\n' % (all_cls[cidx],pcc))
             pccs.append(pcc)
         criter=np.mean(pccs)
 
@@ -199,8 +197,6 @@ def main():
                     target_eval = np.concatenate(target_eval, axis=0).squeeze()
                     pcc, _ = pearsonr(pred_eval.flatten(), target_eval.flatten())
                     pccs.append(pcc)
-                    with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
-                        f.write('cl: %s, pcc: %s\n' % (all_cls[cidx], pcc))
 
 if __name__=="__main__":
     main()
