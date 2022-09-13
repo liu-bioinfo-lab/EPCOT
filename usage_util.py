@@ -166,29 +166,35 @@ def load_pre_training_model(saved_model_path,device):
 
 def load_cage_model(saved_model_path,device):
     cage_model = build_pretrain_model_cage(cage_args)
-    cage_model.to(device)
+    model_dict = cage_model.state_dict()
+    downstream_dict = torch.load(saved_model_path, map_location='cpu')
+    downstream_dict = {k: v for k, v in downstream_dict.items() if k in model_dict}
+    model_dict.update(downstream_dict)
+    cage_model.load_state_dict(model_dict)
     cage_model.eval()
-    cage_model.load_state_dict(torch.load(saved_model_path))
+    cage_model.to(device)
     return cage_model
 
 def load_hic_model(saved_model_path,device):
     hic_model = build_pretrain_model_hic(hic_args)
-    hic_model.to(device)
-
     model_dict = hic_model.state_dict()
     downstream_dict = torch.load(saved_model_path, map_location='cpu')
     downstream_dict = {k: v for k, v in downstream_dict.items() if k in model_dict}
     model_dict.update(downstream_dict)
     hic_model.load_state_dict(model_dict)
     hic_model.eval()
-
+    hic_model.to(device)
     return hic_model
 
 def load_microc_model(saved_model_path,device):
     microc_model = build_pretrain_model_microc(microc_args)
-    microc_model.to(device)
+    model_dict = microc_model.state_dict()
+    downstream_dict = torch.load(saved_model_path, map_location='cpu')
+    downstream_dict = {k: v for k, v in downstream_dict.items() if k in model_dict}
+    model_dict.update(downstream_dict)
+    microc_model.load_state_dict(model_dict)
     microc_model.eval()
-    microc_model.load_state_dict(torch.load(saved_model_path))
+    microc_model.to(device)
     return microc_model
 
 
@@ -203,7 +209,7 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     pred_epi = pred_epi.detach().cpu().numpy()
     return pred_epi
 
-def predict_cage(model,chrom,start,end,dnase,fasta_extractor):
+def predict_cage(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=False):
     if (end-start)%200000:
         raise ValueError('the length of the input genomic region should be divisible by 200000')
     input_dnase = read_dnase_pickle(dnase, chrom[3:])
@@ -215,8 +221,19 @@ def predict_cage(model,chrom,start,end,dnase,fasta_extractor):
         cage_inputs = generate_input(fasta_extractor,chrom, s, e, input_dnase).to(device)
         inputs.append(cage_inputs)
     inputs = torch.stack(inputs)
-    with torch.no_grad():
-        pred_cage = model(inputs).detach().cpu().numpy().flatten()
+
+    if cross_cell_type:
+        pred_cage = []
+        for m in model.modules():
+            if m.__class__.__name__.startswith('BatchNorm'):
+                m.train()
+        with torch.no_grad():
+            for i in range(inputs.shape[0]):
+                pred_cage.append(model(inputs[i:i+1]).detach().cpu().numpy().squeeze())
+        pred_cage = np.concatenate(pred_cage)
+    else:
+        with torch.no_grad():
+            pred_cage = model(inputs).detach().cpu().numpy().flatten()
     return pred_cage
 
 def arraytouptri(arrays,args):
@@ -252,13 +269,17 @@ def predict_hic(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=Fals
     return pred_hic
 
 
-def predict_microc(model,chrom,start,end,dnase,fasta_extractor):
+def predict_microc(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=False):
     if (end-start)!=600000:
         raise ValueError('Please input a 600kb region')
     input_dnase = read_dnase_pickle(dnase, chrom[3:])
     inputs = generate_input(fasta_extractor, chrom, start, end, input_dnase)
     device = next(model.parameters()).device
     inputs = inputs.unsqueeze(0).float().to(device)
+    if cross_cell_type:
+        for m in model.modules():
+            if m.__class__.__name__.startswith('BatchNorm'):
+                m.train()
     with torch.no_grad():
         pred_microc = model(inputs).detach().cpu().numpy().squeeze()
     pred_microc=complete_mat(arraytouptri(pred_microc.squeeze(), microc_args))
