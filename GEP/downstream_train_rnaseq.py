@@ -9,9 +9,6 @@ import argparse
 from rnaseq_dataset import GexDataset,TestDataset
 def parser_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--num_class', default=245, type=int)
-    parser.add_argument('--seq_length', default=1600, type=int)
-    parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--bins', type=int, default=11)
     parser.add_argument('--nheads', default=4, type=int)
     parser.add_argument('--hidden_dim', default=512, type=int)
@@ -19,9 +16,7 @@ def parser_args():
     parser.add_argument('--enc_layers', default=1, type=int)
     parser.add_argument('--dec_layers', default=2, type=int)
     parser.add_argument('--dropout', default=0.2, type=float)
-    parser.add_argument('--backbone_type', default='cnn1', type=str)
     parser.add_argument('--epochs', default=20, type=int)
-    parser.add_argument('--fea_pos', default=False, action='store_true')
     parser.add_argument('--lr', default=5e-4, type=float)
     parser.add_argument('--shuffle_dataset', default=True, action='store_false', help='model testing')
     parser.add_argument('--batchsize', type=int, default=64)
