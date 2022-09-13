@@ -68,9 +68,6 @@ class CNN(nn.Module):
         conv_kernel_size2 = 8
         pool_kernel_size1 = 5
         pool_kernel_size2 = 4
-        # sequence_length = seq_length
-        # n_targets = nclass
-        # linear_size = embed_length
         self.conv_net = nn.Sequential(
             nn.Conv1d(5, 256, kernel_size=conv_kernel_size1),
             nn.ReLU(inplace=True),
@@ -95,21 +92,6 @@ class CNN(nn.Module):
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
             nn.Dropout(p=0.2))
-        # reduce_by1 = 2 * (conv_kernel_size1 - 1)
-        # reduce_by2 = 2 * (conv_kernel_size2 - 1)
-        # pool_kernel_size1 = float(pool_kernel_size1)
-        # pool_kernel_size2 = float(pool_kernel_size2)
-        # self._n_channels = int(
-        #     np.floor(
-        #         (np.floor(
-        #             (sequence_length - reduce_by1) / pool_kernel_size1)
-        #          - reduce_by2) / pool_kernel_size2)
-        #     - reduce_by2)
-        # print(self._n_channels)
-        # self.linear = nn.Linear(512* self._n_channels, linear_size)
-        # self.batch_norm = nn.BatchNorm1d(linear_size)
-        # self.classifier = nn.Linear(linear_size, n_targets)
-        # self.relu = nn.ReLU()
         self.num_channels = 512
     def forward(self, x):
         out = self.conv_net(x)
