@@ -35,19 +35,19 @@ class Tranmodel(nn.Module):
         self.backbone = backbone
         self.transformer = transfomer
         # self.num_class = num_class
-        feature_pos=backbone._n_channels
+        # feature_pos=backbone._n_channels
         hidden_dim = transfomer.d_model
-        self.feature_pos_encoding = nn.Parameter(torch.randn(1, hidden_dim, feature_pos))
+        # self.feature_pos_encoding = nn.Parameter(torch.randn(1, hidden_dim, feature_pos))
         # self.label_input = torch.Tensor(np.arange(num_class)).view(1, -1).long()
         self.input_proj = nn.Conv1d(backbone.num_channels, hidden_dim, kernel_size=1)
         # self.query_embed = nn.Embedding(num_class, hidden_dim)
         # self.fc = GroupWiseLinear(num_class, hidden_dim, bias=True)
-    def forward(self, input,fea_pos=False):
+    def forward(self, input):
         input=rearrange(input,'b n c l -> (b n) c l')
         src = self.backbone(input)
         src=self.input_proj(src)
-        if fea_pos:
-            src+=self.feature_pos_encoding
+        # if fea_pos:
+        #     src+=self.feature_pos_encoding
         src = self.transformer(src)
         return src
 
