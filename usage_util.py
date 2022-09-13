@@ -158,9 +158,13 @@ hic_args=parser_args_hic(parser)
 microc_args=parser_args_microc(parser)
 def load_pre_training_model(saved_model_path,device):
     pretrain_model = build_model(args)
-    pretrain_model.to(device)
+    model_dict = pretrain_model.state_dict()
+    pretrain_dict = torch.load(saved_model_path, map_location='cpu')
+    pretrain_dict = {k: v for k, v in pretrain_dict.items() if k in model_dict}
+    model_dict.update(pretrain_dict)
+    pretrain_model.load_state_dict(model_dict)
     pretrain_model.eval()
-    pretrain_model.load_state_dict(torch.load(saved_model_path,map_location=device))
+    pretrain_model.to(device)
     return pretrain_model
 
 def load_cage_model(saved_model_path,device):
