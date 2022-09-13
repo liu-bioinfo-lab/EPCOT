@@ -48,4 +48,4 @@ gdown 1PUQyBdqadq2AI9IZPpeAYc5zwjWeoph7 --output models/HFF_Micro-C_transformer.
 ```
 
 ## Model training
-Please see ```downstream_train_hic.py```
+Please see ```downstream_train_hic.py```, e.g., ```python downstream_train_hic.py --fine_tune```
