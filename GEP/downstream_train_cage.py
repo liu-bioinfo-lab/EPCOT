@@ -182,6 +182,9 @@ def main():
             if args.test:
                 pccs=[]
                 model.eval()
+                for m in model.modules():
+                    if m.__class__.__name__.startswith('BatchNorm'):
+                        m.train()
                 for cidx in testcl_index:
                     pred_eval = []
                     target_eval = []
