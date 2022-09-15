@@ -156,7 +156,22 @@ args,parser = get_args()
 cage_args=parser_args_cage(parser)
 hic_args=parser_args_hic(parser)
 microc_args=parser_args_microc(parser)
-def load_pre_training_model(saved_model_path,device):
+
+def load_pre_training_model(
+        saved_model_path,
+        device
+):
+    """
+    Load the pre-training model.
+    Args:
+        saved_model_path (str): the path to the saved pre-training model.
+        device: an object representing the device ('cpu' or 'cuda') where the model will be allocated.
+
+    Examples:
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        saved_model='models/pretrain_dnase.pt'
+        pretrain_model=load_pre_training_model(saved_model,device)
+    """
     pretrain_model = build_model(args)
     model_dict = pretrain_model.state_dict()
     pretrain_dict = torch.load(saved_model_path, map_location='cpu')
@@ -167,7 +182,13 @@ def load_pre_training_model(saved_model_path,device):
     pretrain_model.to(device)
     return pretrain_model
 
-def load_cage_model(saved_model_path,device):
+def load_cage_model(
+        saved_model_path,
+        device
+):
+    """
+    Load EPCOT model to predict 1kb-resolution CAGE-seq.
+    """
     cage_model = build_pretrain_model_cage(cage_args)
     model_dict = cage_model.state_dict()
     downstream_dict = torch.load(saved_model_path, map_location='cpu')
@@ -178,7 +199,13 @@ def load_cage_model(saved_model_path,device):
     cage_model.to(device)
     return cage_model
 
-def load_hic_model(saved_model_path,device):
+def load_hic_model(
+        saved_model_path,
+        device
+):
+    """
+    Load EPCOT model to predict 5kb-resolution Hi-C or ChIA-pet contact maps.
+    """
     hic_model = build_pretrain_model_hic(hic_args)
     model_dict = hic_model.state_dict()
     downstream_dict = torch.load(saved_model_path, map_location='cpu')
@@ -189,7 +216,13 @@ def load_hic_model(saved_model_path,device):
     hic_model.to(device)
     return hic_model
 
-def load_microc_model(saved_model_path,device):
+def load_microc_model(
+        saved_model_path,
+        device
+):
+    """
+    Load EPCOT model to predict 1kb-resolution Micro-C contact maps.
+    """
     microc_model = build_pretrain_model_microc(microc_args)
     model_dict = microc_model.state_dict()
     downstream_dict = torch.load(saved_model_path, map_location='cpu')
@@ -201,7 +234,36 @@ def load_microc_model(saved_model_path,device):
     return microc_model
 
 
-def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
+def predict_epis(
+        model,
+        chrom, start, end,
+        dnase,
+        fasta_extractor
+):
+    """
+    Predict epigenomic features on 1kb sequences.
+    Args:
+        model: the pre-training model
+        chrom (str), start (int), end (int): Specify a genomic region (chromosome, start genomic position, and end genomic position),
+                and the size of the genomic region should be divisible by 1000.
+        dnase: a pickle file for DNase-seq of the cell type to be predicted
+        fasta_extractor: kipoiseq.extractors.FastaStringExtractor object
+
+    Returns:
+        ndarray: a numpy matrix (N x 245) of predicted binding activities of 245 epigenomic features, where N represents the number of
+            1kb sequences in the input genomic region
+
+    Examples:
+        pretrain_model = load_pre_training_model(saved_model,device)
+        fasta_extractor = FastaStringExtractor(fasta_file)
+        chrom,start,end = ['chr11',46750000,47750000]
+        GM12878_dnase=load_input_dnase(input_dnase_file)
+
+        pred_score_epi = predict_epis(model=pretrain_model,
+                            chrom=chrom, start=start,end=end,
+                            dnase=GM12878_dnase,
+                            fasta_extractor=fasta_extractor)
+    """
     if (end-start)%1000:
         raise ValueError('the length of the input genomic region should be divisible by 1000')
     input_dnase=read_dnase_pickle(dnase,chrom[3:])
@@ -212,7 +274,26 @@ def predict_epis(model,chrom, start,end,dnase,fasta_extractor):
     pred_epi = pred_epi.detach().cpu().numpy()
     return pred_epi
 
-def predict_cage(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=False):
+def predict_cage(
+        model,
+        chrom,start,end,
+        dnase,
+        fasta_extractor,
+        cross_cell_type=False
+    ):
+    """
+    1kb CAGE-seq prediction
+    Args:
+        model: EPCOT model to predict CAGE-seq
+        chrom (str), start (int), end (int): Specify a genomic region (chromosome, start genomic position, and end genomic position),
+            and the size of the genomic region should be divisible by 200000
+        dnase: a pickle file for DNase-seq of the cell type to be predicted
+        fasta_extractor: kipoiseq.extractors.FastaStringExtractor object
+        cross_cell_type (bool): if performing cross-cell type prediction
+
+    Returns:
+        ndarray: a numpy array of predicted CAGE-seq. Each element indicates the predicted CAGE-seq signal on a 1kb region
+    """
     if (end-start)%200000:
         raise ValueError('the length of the input genomic region should be divisible by 200000')
     input_dnase = read_dnase_pickle(dnase, chrom[3:])
@@ -288,3 +369,27 @@ def predict_microc(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=F
     pred_microc=complete_mat(arraytouptri(pred_microc.squeeze(), microc_args))
     return pred_microc
 
+import pyfaidx
+class FastaStringExtractor:
+    def __init__(self, fasta_file):
+        self.fasta = pyfaidx.Fasta(fasta_file)
+        self._chromosome_sizes = {k: len(v) for k, v in self.fasta.items()}
+
+    def extract(self, interval: Interval, **kwargs) -> str:
+        # Truncate interval if it extends beyond the chromosome lengths.
+        chromosome_length = self._chromosome_sizes[interval.chrom]
+        trimmed_interval = Interval(interval.chrom,
+                                    max(interval.start, 0),
+                                    min(interval.end, chromosome_length),
+                                    )
+        # pyfaidx wants a 1-based interval
+        sequence = str(self.fasta.get_seq(trimmed_interval.chrom,
+                                          trimmed_interval.start + 1,
+                                          trimmed_interval.stop).seq).upper()
+        # Fill truncated values with N's.
+        pad_upstream = 'N' * max(-interval.start, 0)
+        pad_downstream = 'N' * max(interval.end - chromosome_length, 0)
+        return pad_upstream + sequence + pad_downstream
+
+    def close(self):
+        return self.fasta.close()
