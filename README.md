@@ -27,7 +27,7 @@ pip install -r requirements.txt
  ## Usage
  
 ### Prepare inputs to EPCOT
-Please go to the directory [Data/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/Data) for how to generate the inputs to EPCOT (one-hot repsentations of DNA sequences and normalized DNase-seq).
+Please go to the directory [Data/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/Data) for how to generate the inputs to EPCOT (one-hot repsentations of DNA sequences and normalized DNase-seq). All the data and codes used in EPCOT are in reference genome hg38.
 
 ### Download the pre-training model and downstream models
 You can download our pre-training model trained on DNA sequence and DNase-seq or ATAC-seq from Google Drive
