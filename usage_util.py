@@ -10,100 +10,16 @@ from COP.hic.model import build_pretrain_model_hic
 from COP.microc.model import build_pretrain_model_microc
 
 
-def load_input_dnase(pickle_file):
-    with open(pickle_file,'rb') as f:
-        dnase=pickle.load(f)
-    return dnase
-
-def read_dnase_pickle(dnase_in_pickle,chrom):
-    try:
-        chrom_keys = dnase_in_pickle.keys()
-        if chrom not in chrom_keys:
-            if isinstance(chrom,str):
-                chrom=int(chrom)
-        input_dnase=dnase_in_pickle[chrom].toarray().squeeze()
-    except Exception:
-        raise ValueError('Please enter a correct chromosome')
-    return input_dnase
-
-def search_tf(tf):
-    with open('EPCOT/Profiles/epigenomes.txt', 'r') as f:
-        epigenomes = f.read().splitlines()
-    try:
-        tf_idx= epigenomes.index(tf)
-    except Exception:
-        raise ValueError("please specify a TF in the list of predicted TFs")
-    return tf_idx
 
 
-def one_hot_encode(sequence):
-    return kipoiseq.transforms.functional.one_hot_dna(sequence).astype(np.float32)
-def pad_seq_matrix(matrix, pad_left, pad_right, pad_len=300):
-    # add flanking region to each sample
-    dmatrix = np.concatenate((pad_left, matrix[:, :, -pad_len:]), axis=0)[:-1, :, :]
-    umatrix = np.concatenate((matrix[:, :, :pad_len], pad_right), axis=0)[1:, :, :]
-    return np.concatenate((dmatrix, matrix, umatrix), axis=2)
 
-
-def pad_signal_matrix(matrix,pad_dnase_left,pad_dnase_right, pad_len=300):
-    dmatrix = np.vstack((pad_dnase_left, matrix[:, -pad_len:]))[:-1, :]
-    umatrix = np.vstack((matrix[:, :pad_len], pad_dnase_right))[1:, :]
-    return np.hstack((dmatrix, matrix, umatrix))
-
-
-def generate_input(fasta_extractor,chrom, start, end, dnase):
-    if start>=end:
-        raise ValueError('the start of genomic region should be small than the end.')
-
-    target_interval = kipoiseq.Interval(chrom, start, end)
-    sequence_one_hot = one_hot_encode(fasta_extractor.extract(target_interval))
-    sequence_matrix = sequence_one_hot.reshape(-1, 1000, 4).swapaxes(1, 2)
-
-    pad_interval = kipoiseq.Interval(chrom, start - 300, start)
-    seq_pad_left = np.expand_dims(one_hot_encode(fasta_extractor.extract(pad_interval)).swapaxes(0, 1), 0)
-    pad_interval = kipoiseq.Interval(chrom, end, end + 300)
-    seq_pad_right = np.expand_dims(one_hot_encode(fasta_extractor.extract(pad_interval)).swapaxes(0, 1), 0)
-    seq_input = pad_seq_matrix(sequence_matrix, seq_pad_left, seq_pad_right)
-
-    pad_dnase_left=dnase[start-300:start]
-    pad_dnase_right = dnase[end:end+300]
-    dnase_input = np.expand_dims(pad_signal_matrix(dnase[start:end].reshape(-1, 1000),pad_dnase_left,pad_dnase_right), 1)
-
-    inputs = torch.tensor(np.concatenate((seq_input, dnase_input), axis=1)).float()
-    return inputs
-
-def plot_atac(ax,val,color='#17becf'):
-    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.margins(x=0)
-    ax.set_xticks([])
-
-def plot_bindings(ax, val, chr, start, end, color='#17becf'):
-    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.set_xticks(np.arange(0, val.shape[0], val.shape[0] // 5))
-    ax.set_ylim(0, 1)
-    ax.set_xticklabels(np.arange(start, end, (end - start) // 5))
-    ax.margins(x=0)
-
-def plot_cage(ax,val,chr,start,end,color='#17becf'):
-    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.set_xlabel('%s:%s-%s'%(chr,start,end))
-    ax.set_xticks(np.arange(0,val.shape[0],val.shape[0]//5))
-    ax.set_xticklabels(np.arange(start,end,(end-start)//5))
-    ax.margins(x=0)
-
-### arguments for pre-training model
 def parser_args():
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--num_class', default=245, type=int)
+    """
+    hyperparameters for the pre-training model
+    """
+    # add_help = False
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--num_class', default=245, type=int,help='the number of epigenomic features to be predicted')
     parser.add_argument('--seq_length', default=1600, type=int)
     parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--nheads', default=4, type=int)
@@ -156,6 +72,95 @@ args,parser = get_args()
 cage_args=parser_args_cage(parser)
 hic_args=parser_args_hic(parser)
 microc_args=parser_args_microc(parser)
+
+
+
+def load_input_dnase(
+        pickle_file
+):
+    """
+    Args:
+        pickle_file (str): the path to a pickle file storing DNase-seq
+    Returns:
+        dict: a python dictionary storing DNase-seq
+            {chromosome (int): a sparse matrix representing DNase-seq signals (scipy.sparse.csr.csr_matrix)}
+    """
+    with open(pickle_file,'rb') as f:
+        dnase=pickle.load(f)
+    return dnase
+
+def read_dnase_pickle(
+        dnase_in_pickle,
+        chrom
+):
+    """
+    Args:
+        dnase_in_pickle (dict): DNase-seq data in dictionary structure
+        chrom (int or str): chromosome
+    Returns:
+        ndarray: a numpy array representing DNase-seq signals in the chromsome of interest
+    """
+    try:
+        chrom_keys = dnase_in_pickle.keys()
+        if chrom not in chrom_keys:
+            if isinstance(chrom,str):
+                chrom=int(chrom)
+        input_dnase=dnase_in_pickle[chrom].toarray().squeeze()
+    except Exception:
+        raise ValueError('Please enter a correct chromosome')
+    return input_dnase
+
+def search_tf(tf):
+    """
+    search an TF in the list of predicted epigenomic features
+    Args:
+        tf: the name of an epigenomic feature
+    Returns:
+        int: the index of the epigenomic feature in the list
+    """
+    with open('EPCOT/Profiles/epigenomes.txt', 'r') as f:
+        epigenomes = f.read().splitlines()
+    try:
+        tf_idx= epigenomes.index(tf)
+    except Exception:
+        raise ValueError("%s is not in the list of predicted TFs"%tf)
+    return tf_idx
+
+
+def one_hot_encode(sequence):
+    return kipoiseq.transforms.functional.one_hot_dna(sequence).astype(np.float32)
+def pad_seq_matrix(matrix, pad_left, pad_right, pad_len=300):
+    # add flanking region to each sample
+    dmatrix = np.concatenate((pad_left, matrix[:, :, -pad_len:]), axis=0)[:-1, :, :]
+    umatrix = np.concatenate((matrix[:, :, :pad_len], pad_right), axis=0)[1:, :, :]
+    return np.concatenate((dmatrix, matrix, umatrix), axis=2)
+
+def pad_signal_matrix(matrix,pad_dnase_left,pad_dnase_right, pad_len=300):
+    dmatrix = np.vstack((pad_dnase_left, matrix[:, -pad_len:]))[:-1, :]
+    umatrix = np.vstack((matrix[:, :pad_len], pad_dnase_right))[1:, :]
+    return np.hstack((dmatrix, matrix, umatrix))
+
+
+def generate_input(fasta_extractor,chrom, start, end, dnase):
+    if start>=end:
+        raise ValueError('the start of genomic region should be small than the end.')
+
+    target_interval = kipoiseq.Interval(chrom, start, end)
+    sequence_one_hot = one_hot_encode(fasta_extractor.extract(target_interval))
+    sequence_matrix = sequence_one_hot.reshape(-1, 1000, 4).swapaxes(1, 2)
+
+    pad_interval = kipoiseq.Interval(chrom, start - 300, start)
+    seq_pad_left = np.expand_dims(one_hot_encode(fasta_extractor.extract(pad_interval)).swapaxes(0, 1), 0)
+    pad_interval = kipoiseq.Interval(chrom, end, end + 300)
+    seq_pad_right = np.expand_dims(one_hot_encode(fasta_extractor.extract(pad_interval)).swapaxes(0, 1), 0)
+    seq_input = pad_seq_matrix(sequence_matrix, seq_pad_left, seq_pad_right)
+
+    pad_dnase_left=dnase[start-300:start]
+    pad_dnase_right = dnase[end:end+300]
+    dnase_input = np.expand_dims(pad_signal_matrix(dnase[start:end].reshape(-1, 1000),pad_dnase_left,pad_dnase_right), 1)
+
+    inputs = torch.tensor(np.concatenate((seq_input, dnase_input), axis=1)).float()
+    return inputs
 
 def load_pre_training_model(
         saved_model_path,
@@ -393,3 +398,31 @@ class FastaStringExtractor:
 
     def close(self):
         return self.fasta.close()
+
+def plot_atac(ax,val,color='#17becf'):
+    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.margins(x=0)
+    ax.set_xticks([])
+
+def plot_bindings(ax, val, chr, start, end, color='#17becf'):
+    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.set_xticks(np.arange(0, val.shape[0], val.shape[0] // 5))
+    ax.set_ylim(0, 1)
+    ax.set_xticklabels(np.arange(start, end, (end - start) // 5))
+    ax.margins(x=0)
+
+def plot_cage(ax,val,chr,start,end,color='#17becf'):
+    ax.fill_between(np.arange(val.shape[0]), 0, val, color=color)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.set_xlabel('%s:%s-%s'%(chr,start,end))
+    ax.set_xticks(np.arange(0,val.shape[0],val.shape[0]//5))
+    ax.set_xticklabels(np.arange(start,end,(end-start)//5))
+    ax.margins(x=0)
