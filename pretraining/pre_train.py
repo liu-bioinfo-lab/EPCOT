@@ -21,7 +21,6 @@ def parser_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_class', default=245, type=int,help='number of labels')
     parser.add_argument('--seq_length', default=1600, type=int,help='input sequence length')
-    parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--nheads', default=4, type=int)
     parser.add_argument('--hidden_dim', default=512, type=int)
     parser.add_argument('--dim_feedforward', default=1024, type=int)
