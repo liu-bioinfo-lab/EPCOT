@@ -17,7 +17,6 @@ def parser_args():
     parser = argparse.ArgumentParser(add_help = False)
     parser.add_argument('--num_class', default=245, type=int,help='the number of epigenomic features to be predicted')
     parser.add_argument('--seq_length', default=1600, type=int,help='the length of input sequences')
-    # parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--nheads', default=4, type=int)
     parser.add_argument('--hidden_dim', default=512, type=int)
     parser.add_argument('--dim_feedforward', default=1024, type=int)
