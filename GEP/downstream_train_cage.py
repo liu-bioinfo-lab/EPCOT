@@ -143,9 +143,6 @@ def main():
 
         train_loss = np.average(training_losses)
         print('Epoch: {} LR: {:.8f} train_loss: {:.7f}'.format(epoch, optimizer.param_groups[0]['lr'], train_loss))
-        with open('log1_%s_%s.txt' % (args.backbone_type, args.ac_data), 'a') as f:
-            f.write('Epoch: %s, LR: %s, train_loss: %s\n' % (
-            epoch, optimizer.param_groups[0]['lr'], train_loss))
         model.eval()
         pccs = []
         for cidx in traincl_index:
