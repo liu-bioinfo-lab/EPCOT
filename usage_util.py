@@ -44,8 +44,11 @@ def parser_args_cage(parent_parser):
     parser.add_argument('--fine_tune', default=False, action='store_true')
     args, unknown = parser.parse_known_args()
     return args
-### arguments for downstream model to predict 5kb-resolution Hi-C and ChIA-PET
+
 def parser_args_hic(parent_parser):
+    """
+    Hyperparameters for the downstream model to predict 5kb-resolution Hi-C and ChIA-PET
+    """
     parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
     parser.add_argument('--bins', type=int, default=200)
     parser.add_argument('--crop', type=int, default=4)
@@ -55,8 +58,11 @@ def parser_args_hic(parent_parser):
     parser.add_argument('--fine_tune', default=False, action='store_true')
     args, unknown = parser.parse_known_args()
     return args
-### arguments for downstream model to predict 1kb-resolution Micro-C
+
 def parser_args_microc(parent_parser):
+    """
+    Hyperparameters for the downstream model to predict 1kb-resolution Micro-C
+    """
     parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
     parser.add_argument('--bins', type=int, default=600)
     parser.add_argument('--crop', type=int, default=50)
@@ -139,7 +145,24 @@ def pad_signal_matrix(matrix,pad_dnase_left,pad_dnase_right, pad_len=300):
     return np.hstack((dmatrix, matrix, umatrix))
 
 
-def generate_input(fasta_extractor,chrom, start, end, dnase):
+def generate_input(
+        fasta_extractor,
+        chrom, start, end,
+        dnase
+):
+    """
+    Generate the inputs to the model
+    Args:
+        fasta_extractor (kipoiseq.extractors.FastaStringExtractor): kipoiseq.extractors.FastaStringExtractor object
+        chrom (str), start (int), end (int): Specify a genomic region (chromosome, start genomic position, and end genomic position),
+                and the size of the genomic region should be divisible by 1000.
+        dnase (ndarray): a numpy array representing DNase-seq signals in the same chromosome
+
+    Returns:
+        torch.Tensor: a torch tensor (N x 5 x 1600) representing input genomic sequences and DNase-seq, where N represents the number of
+                1kb sequences in the input genomic region
+    """
+
     if start>=end:
         raise ValueError('the start of genomic region should be small than the end.')
 
@@ -249,7 +272,7 @@ def predict_epis(
         model: the pre-training model
         chrom (str), start (int), end (int): Specify a genomic region (chromosome, start genomic position, and end genomic position),
                 and the size of the genomic region should be divisible by 1000.
-        dnase: a pickle file for DNase-seq of the cell type to be predicted
+        dnase (dict): a python dictionary storing DNase-seq
         fasta_extractor: kipoiseq.extractors.FastaStringExtractor object
 
     Returns:
@@ -290,8 +313,8 @@ def predict_cage(
         model: EPCOT model to predict CAGE-seq
         chrom (str), start (int), end (int): Specify a genomic region (chromosome, start genomic position, and end genomic position),
             and the size of the genomic region should be divisible by 200000
-        dnase: a pickle file for DNase-seq of the cell type to be predicted
-        fasta_extractor: kipoiseq.extractors.FastaStringExtractor object
+        dnase (dict): a python dictionary storing DNase-seq
+        fasta_extractor (kipoiseq.extractors.FastaStringExtractor): kipoiseq.extractors.FastaStringExtractor object
         cross_cell_type (bool): if performing cross-cell type prediction
 
     Returns:
@@ -334,10 +357,7 @@ def complete_mat(mat):
     np.fill_diagonal(temp,0)
     mat= mat+temp.T
     return mat
-def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
-    ax.imshow(mat,cmap=cmap, vmin=vmin, vmax=vmax)
-    ax.set_xticks([])
-    ax.set_yticks([])
+
 
 def predict_hic(model,chrom,start,end,dnase,fasta_extractor,cross_cell_type=False):
     if (end-start)!=1000000:
@@ -424,3 +444,7 @@ def plot_cage(ax,val,chr,start,end,color='#17becf'):
     ax.set_xticks(np.arange(0,val.shape[0],val.shape[0]//5))
     ax.set_xticklabels(np.arange(start,end,(end-start)//5))
     ax.margins(x=0)
+def plot_hic(ax, mat,cmap='RdBu_r', vmin=0, vmax=5):
+    ax.imshow(mat,cmap=cmap, vmin=vmin, vmax=vmax)
+    ax.set_xticks([])
+    ax.set_yticks([])
