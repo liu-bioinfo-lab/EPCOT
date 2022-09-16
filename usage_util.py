@@ -1,4 +1,3 @@
-#functions used in
 import argparse
 import kipoiseq
 from kipoiseq import Interval
@@ -10,18 +9,15 @@ from COP.hic.model import build_pretrain_model_hic
 from COP.microc.model import build_pretrain_model_microc
 
 
-
-
-
 def parser_args():
     """
-    hyperparameters for the pre-training model
+    Hyperparameters for the pre-training model
     """
     # add_help = False
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help = False)
     parser.add_argument('--num_class', default=245, type=int,help='the number of epigenomic features to be predicted')
-    parser.add_argument('--seq_length', default=1600, type=int)
-    parser.add_argument('--embedsize', default=320, type=int)
+    parser.add_argument('--seq_length', default=1600, type=int,help='the length of input sequences')
+    # parser.add_argument('--embedsize', default=320, type=int)
     parser.add_argument('--nheads', default=4, type=int)
     parser.add_argument('--hidden_dim', default=512, type=int)
     parser.add_argument('--dim_feedforward', default=1024, type=int)
@@ -34,9 +30,12 @@ def parser_args():
 def get_args():
     args,_ = parser_args()
     return args,_
-### arguments for downstream model to predict 1kb-resolution CAGE-seq
+
 def parser_args_cage(parent_parser):
-    parser=argparse.ArgumentParser(parents=[parent_parser])
+    """
+    Hyperparameters for the downstream model to predict 1kb-resolution CAGE-seq
+    """
+    parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
     parser.add_argument('--bins', type=int, default=250)
     parser.add_argument('--crop', type=int, default=25)
     parser.add_argument('--pretrain_path', type=str, default='none')
@@ -47,7 +46,7 @@ def parser_args_cage(parent_parser):
     return args
 ### arguments for downstream model to predict 5kb-resolution Hi-C and ChIA-PET
 def parser_args_hic(parent_parser):
-    parser=argparse.ArgumentParser(parents=[parent_parser])
+    parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
     parser.add_argument('--bins', type=int, default=200)
     parser.add_argument('--crop', type=int, default=4)
     parser.add_argument('--pretrain_path', type=str, default='none')
@@ -58,7 +57,7 @@ def parser_args_hic(parent_parser):
     return args
 ### arguments for downstream model to predict 1kb-resolution Micro-C
 def parser_args_microc(parent_parser):
-    parser=argparse.ArgumentParser(parents=[parent_parser])
+    parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
     parser.add_argument('--bins', type=int, default=600)
     parser.add_argument('--crop', type=int, default=50)
     parser.add_argument('--pretrain_path', type=str, default='none')
@@ -72,7 +71,6 @@ args,parser = get_args()
 cage_args=parser_args_cage(parser)
 hic_args=parser_args_hic(parser)
 microc_args=parser_args_microc(parser)
-
 
 
 def load_input_dnase(
