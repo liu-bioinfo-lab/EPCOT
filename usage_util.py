@@ -29,8 +29,7 @@ def parser_args():
     parser.add_argument('--dec_layers', default=2, type=int)
     parser.add_argument('--dropout', default=0.2, type=float)
     parser.add_argument('--load_backbone', default=False)
-    args = parser.parse_args()
-    # args, unknown = parser.parse_known_args()
+    args, unknown = parser.parse_known_args()
     return args,parser
 def get_args():
     args,_ = parser_args()
