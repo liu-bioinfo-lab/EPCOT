@@ -24,7 +24,7 @@ def parser_args():
     parser.add_argument('--dropout', default=0.2, type=float)
     parser.add_argument('--epochs', default=40, type=int)
     parser.add_argument('--accum_iter', default=16, type=int)
-    parser.add_argument('--lr', default=2e-4, type=float)
+    parser.add_argument('--lr', default=3e-4, type=float)
     parser.add_argument('--shuffle_dataset', default=True, action='store_false', help='model testing')
     parser.add_argument('--batchsize', type=int, default=2)
     parser.add_argument('--test', default=True, action='store_false', help='model testing')
