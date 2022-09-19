@@ -47,5 +47,7 @@ gdown 1ia-ZoSoiZGDFPnZcySzMpirovHhulRfH --output models/hic_HFF_transformer.pt
 gdown 1PUQyBdqadq2AI9IZPpeAYc5zwjWeoph7 --output models/HFF_Micro-C_transformer.pt
 ```
 
-## Model training
-Please see ```downstream_train_hic.py```, e.g., ```python downstream_train_hic.py --fine_tune```
+## Usage
+For model training, please see ```downstream_train_hic.py```, e.g., ```python downstream_train_hic.py --fine_tune```
+
+For inference (e.g., cross-cell type prediction), please see ```cross_cell_type_test.py```
