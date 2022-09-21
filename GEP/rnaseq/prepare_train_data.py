@@ -47,14 +47,14 @@ def generate_input_dnase(cl,genes,gene_tss):
     temp_dnase = {}
     tempchrs = [i for i in np.arange(1, 23)] + ['X']
     for chr in tempchrs:
-        temp_dnase[str(chr)] = np.expand_dims(pad_signal_matrix(dnase[chr].reshape(-1, 1000)), axis=1)
+        temp_dnase[str(chr)] = np.expand_dims(pad_signal_matrix(dnase[chr].toarray().reshape(-1, 1000)), axis=1)
         print(cl, chr, temp_dnase[str(chr)].shape)
     for gene in genes:
         chr = gene_tss[gene][0]
         tss_idx= gene_tss[gene][1]//1000
         indices=np.arange(tss_idx-5,tss_idx+6)
         dnase_data[gene]=temp_dnase[str(chr)][indices]
-    with open('data/%s_train_atac.pickle'%cl,'wb') as f:
+    with open('data/%s_train_dnase.pickle'%cl,'wb') as f:
         pickle.dump(dnase_data,f)
 
 
