@@ -11,8 +11,6 @@ For RNA-seq GEP, we download the datasets of DeepChrome and AttentiveChrome from
 
 For CAGE-seq GEP, we download CAGE-seq bam files from ENCODE and use samtools to merge replicates, and then use [bam_cov.py](https://github.com/calico/basenji/blob/master/bin/bam_cov.py) and [data_read.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/cage/data_read.py)  to convert the bam files into bigWig and process the data.
 
-``````
-
 ## Download trained downstream models
 The model to complete RNA-seq GEP classification task can be downloaded from Google Drive, which is trained on four cell types: H1, A549, GM12878, and HeLa-S3.
 
