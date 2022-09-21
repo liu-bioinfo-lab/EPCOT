@@ -27,8 +27,8 @@ def load_dnase(dnase_seq):
     return torch.tensor(dnase_seq)
 
 def load_hic(cl,chr):
+    # hic_path = '/PATH/TO/DIRECTORY/OF/SAVED/HI-C'
     hic_path = '/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/3D/OE_matrix/'
-    # hic = load_npz(hic_path + '%s/chr%s_5kb.npz' % (cl, chr))
     hic = load_npz(hic_path + '%s/chr%s_5kb_1Mb.npz' % (cl, chr))
     return hic
 
@@ -36,18 +36,17 @@ def prepare_train_data(cl,chrs):
     dnase_data={}
     ref_data={}
     hic_data={}
-    # dnase_path = '/scratch/drjieliu_root/drjieliu/zhenhaoz/DNase/normalize_dnase/'
+    # dnase_path = '/PATH/TO/DIRECTORY/OF/SAVED/DNASE-SEQ'
     dnase_path = '/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/normalize_dnase/'
     with open(dnase_path + 'dnase_%s.pickle' % cl, 'rb') as f:
         dnase = pickle.load(f)
     for chr in chrs:
-        dnase_seq=dnase[chr]
-        # if chr != 'X':
-        #     dnase_seq=dnase[int(chr)]
-        # else:
-        #     dnase_seq = dnase['X'].reshape(1,-1)
+        if chr != 'X':
+            dnase_seq=dnase[int(chr)]
+        else:
+            dnase_seq = dnase['X']
 
-        dnase_data[chr]=load_dnase(csr_matrix(dnase_seq).toarray())
+        dnase_data[chr]=load_dnase(dnase_seq.toarray())
         ref_data[chr]=load_ref_genome(chr)
         hic_data[chr]=load_hic(cl,chr)
     return dnase_data, ref_data,hic_data
