@@ -35,8 +35,7 @@ def DNase_processing():
             seq_length = chr_lens[chr - 1] // 1000 * 1000
         signals[chr] = csr_matrix(temp.astype('float32')[:seq_length])
         print(dnase_file, seq_length, np.mean(signals[chr]))
-    with open('%s'
-              % (dnase_file.replace('bigWig', 'pickle')), 'wb') as file:
+    with open(dnase_file.replace('bigWig', 'pickle'), 'wb') as file:
         pickle.dump(signals, file)
 
 if __name__=='__main__':
