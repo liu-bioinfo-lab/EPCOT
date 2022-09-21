@@ -32,7 +32,7 @@ for i in range(len(chrs)):
     txtfile='GM12878_Hi-C/chr%s_%s.txt'%(chrs[i],resolution)
     row,col,data=txttomatrix(txtfile,resolution)
     temp=csr_matrix((data, (row, col)), shape=(length, length))
-    save_npz('OE_matrix/%s/chr%s_5kb.npz'%(cl,chrs[i]),temp)
+    save_npz('GM12878_Hi-C/chr%s_5kb.npz'%(chrs[i]),temp)
 ```
 
 ## Download trained models
