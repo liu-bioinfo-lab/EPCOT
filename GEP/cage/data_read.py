@@ -21,7 +21,7 @@ import collections
 
 
 def main():
-  # example usage: python data_read.py --cl A549
+  # example usage: python data_read.py --cl A549 --output_dir /nfs/turbo/umms-drjieliu/usr/zzh/tmp
   parser = OptionParser()
   parser.add_option('-b', dest='blacklist_bed',
       help='Set blacklist nucleotides to a baseline value.')
@@ -54,15 +54,20 @@ def main():
       help='Average pooling width [Default: %default]')
   parser.add_option('--cl', dest='cl',
                     default='none')
+  parser.add_option('--output_dir',dest='output_dir',default='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data')
   (options, args) = parser.parse_args()
 
+  # path to ENCODE black list fle
   options.blacklist_bed='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/cage-seq/black_list.bed'
-  print(options.blacklist_bed,options.cl,options.clip)
-  # bigwig file output from bam_cov.py
+  # input bigwig file output from bam_cov.py
   genome_cov_file='/scratch/drjieliu_root/drjieliu/zhenhaoz/CAGE-seq/%s_cage.bigWig'%(options.cl)
-  # input 250kb regions
-  seqs_bed_file='sequences.bed'
-  seqs_cov_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/%s_seq_cov.h5'%(options.cl)
+  print(options.blacklist_bed,genome_cov_file, options.cl, options.clip)
+  # a bed file of input 250kb genomic regions ('chr','start','end')
+  seqs_bed_file='/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/gene_exp/ct_cage/data/250kb/sequences.bed'
+
+  # output file
+  seqs_cov_file=os.path.join(options.output_dir,'%s_seq_cov.h5'%(options.cl))
+
   ModelSeq = collections.namedtuple('ModelSeq', ['chr', 'start', 'end'])
   assert(options.crop_bp >= 0)
 
