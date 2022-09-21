@@ -29,4 +29,6 @@ gdown 1eP-ruOcywlGeQIRuVwWk_QFc4z9j4-jF --output models/cage_transformer.pt
 
 For RNA-seq GEP, please refer to the script [downstream_train_rnaseq.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_rnaseq.py) . For CAGE-seq GEP please refer to the script [downstream_train_cage.py](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/GEP/downstream_train_cage.py).  For example,
 
-```python downstream_train_cage.py --fine_tune --pretrain_path models/pretrain_dnase.pt```
+```
+python downstream_train_cage.py --fine_tune --pretrain_path models/pretrain_dnase.pt
+```
