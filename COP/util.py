@@ -38,16 +38,34 @@ def prepare_train_data(cl,chrs):
     hic_data={}
     # dnase_path = '/scratch/drjieliu_root/drjieliu/zhenhaoz/DNase/normalize_dnase/'
     dnase_path = '/nfs/turbo/umms-drjieliu/usr/zzh/KGbert/normalize_dnase/'
-    with open(dnase_path + '%s_dnase.pickle' % cl, 'rb') as f:
+    with open(dnase_path + 'dnase_%s.pickle' % cl, 'rb') as f:
         dnase = pickle.load(f)
     for chr in chrs:
-        if chr != 'X':
-            dnase_seq=dnase[int(chr)]
-        else:
-            dnase_seq = dnase['X'].reshape(1,-1)
+        dnase_seq=dnase[chr]
+        # if chr != 'X':
+        #     dnase_seq=dnase[int(chr)]
+        # else:
+        #     dnase_seq = dnase['X'].reshape(1,-1)
 
         dnase_data[chr]=load_dnase(csr_matrix(dnase_seq).toarray())
         ref_data[chr]=load_ref_genome(chr)
         hic_data[chr]=load_hic(cl,chr)
     return dnase_data, ref_data,hic_data
 
+
+def txttomatrix(txt_file,resolution):
+    rows=[]
+    cols=[]
+    data=[]
+    with open(txt_file,'r') as f:
+        for line in f:
+            contents=line.strip().split('\t')
+            bin1=int(contents[0])//resolution
+            bin2 = int(contents[1]) // resolution
+            if np.abs(bin2-bin1)>500:
+                continue
+            value=float(contents[2])
+            rows.append(bin1)
+            cols.append(bin2)
+            data.append(value)
+    return np.array(rows),np.array(cols),np.array(data)
