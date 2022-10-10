@@ -2,7 +2,7 @@
 
 ### Model archietecture to predict 5kb-resolution Hi-C contact maps
 <img
-  src="../Profiles/COP.png"
+  src="../Data/COP.png"
   title=""
   style="display: inline-block; margin: 0 auto; max-width: 250px">
 ## Data preparing
