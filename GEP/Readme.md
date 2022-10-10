@@ -1,7 +1,7 @@
 ## Downstream model architecture
 
 <img
-  src="../Profiles/GEP.png"
+  src="../Data/GEP.png"
   title=""
   style="display: inline-block; margin: 0 auto; max-width: 300px">
   
