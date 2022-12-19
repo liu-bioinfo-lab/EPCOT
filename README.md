@@ -1,5 +1,6 @@
 # EPCOT
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7456292.svg)](https://doi.org/10.5281/zenodo.7456292)
 
 EPCOT (comprehensively predicting <ins>EP</ins>igenome, <ins>C</ins>hromatin <ins>O</ins>rganization and <ins>T</ins>ranscription) is a comprehensive model to jointly predict epigenomic features, gene expression, high-resolution chromatin contact maps, and enhancer activities from DNA sequence and cell-type specific chromatin accessibility data. 
 
