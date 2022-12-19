@@ -41,6 +41,8 @@ gdown 1aMb3kVmaWZPUzqKmfZs9xWT-QLUGjQQd --output pretrain_atac.pt
 
 For the trained downstream models and how to train downstream models from scratch, you can go to each correspoding directory [GEP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/GEP), [COP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/COP), and [EAP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EAP).
 
+The models can also be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7456292.svg)](https://doi.org/10.5281/zenodo.7456292)
+
 ### Tutorial
 We prepare a Google Colab Notebook [EPCOT_usage.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb) to introduce how to use EPCOT to predict multiple modalities, and provide a Google Colab Notebook [sequence_pattern.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/Data/sequence_pattern.ipynb) to introduce how to generate sequence patterns for TFs of interest.
 
