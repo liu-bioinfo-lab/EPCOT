@@ -36,9 +36,6 @@ You can download our pre-training model trained on DNA sequence and DNase-seq or
 # download from Google Drive
 pip install gdown
 gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output pretrain_dnase.pt
-
-### we also provide the pre-training model trained on ATAC-seq using the same four cell lines with DNase-seq
-gdown 1aMb3kVmaWZPUzqKmfZs9xWT-QLUGjQQd --output pretrain_atac.pt
 ```
 
 For the trained downstream models and how to train downstream models from scratch, you can go to each correspoding directory [GEP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/GEP), [COP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/COP), and [EAP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EAP).
