@@ -34,4 +34,4 @@ For ATAC-seq, the bam files were downsampled to around 20-30M using Picard's Dow
 bamCoverage --bam GM12878.bam -o GM12878_atac.bigWig --outFileFormat bigwig --normalizeUsing RPGC --effectiveGenomeSize 2913022398 --Offset 1 --binSize 1 --numberOfProcessors 12 --blackListFileName black_list.bed
 ```
 
-Some of our RPGC normalized DNase-seq or ATAC-seq profiles used in EPCOT training are available in [Google Drive](https://drive.google.com/drive/folders/1gsveyTgYwlXK5Ntnx5nLKSzIW3JvxLse?usp=share_link). 
+Some of the normalized DNase-seq or ATAC-seq profiles used in EPCOT training are available in [Google Drive](https://drive.google.com/drive/folders/1gsveyTgYwlXK5Ntnx5nLKSzIW3JvxLse?usp=share_link). 
