@@ -138,7 +138,7 @@ def search_tf(tf):
     Returns:
         int: the index of the epigenomic feature in the list
     """
-    with open('EPCOT/Profiles/epigenomes.txt', 'r') as f:
+    with open('EPCOT/Data/epigenomes.txt', 'r') as f:
         epigenomes = f.read().splitlines()
     try:
         tf_idx= epigenomes.index(tf)
