@@ -1,6 +1,6 @@
 # EPCOT data inputs
 
-EPCOT takes inputs of one-hot representations of DNA sequences and DNase-seq profiles. For DNA sequence, we use the reference genome hg38 whose fasta file is downloaded from [UCSC genome browser](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/). You can use [reference_genome.py](https://github.com/zzh24zzh/EPCOT/blob/master/Data/reference_genome.py) to transform the fasta file to one-hot matrices.
+EPCOT takes inputs of one-hot representations of DNA sequences and DNA accessibility profiles. For DNA sequence, we use the reference genome hg38 whose fasta file is downloaded from [UCSC genome browser](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/). You can use [reference_genome.py](https://github.com/zzh24zzh/EPCOT/blob/master/Data/reference_genome.py) to transform the fasta file to one-hot matrices.
 ## Processing DNase-seq (or ATAC-seq)
 ### Dependencies
 * samtools (1.11)
