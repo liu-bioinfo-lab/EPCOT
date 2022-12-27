@@ -349,9 +349,8 @@ def predict_track(
             if m.__class__.__name__.startswith('BatchNorm'):
                 m.train()
     with torch.no_grad():
-        pred_hic = model(inputs).detach().cpu().numpy().squeeze()
-    pred_hic=complete_mat(arraytouptri(pred_hic.squeeze(), hic_args))
-    return pred_hic
+        pred_track = model(inputs).detach().cpu().numpy().squeeze()
+    return pred_track
 
 
 def predict_cage(
