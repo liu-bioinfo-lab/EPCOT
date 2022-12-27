@@ -4,6 +4,7 @@ from kipoiseq import Interval
 import numpy as np
 import torch,pickle
 from pretraining.model import build_model
+from pretraining.track.track_model import build_track_model
 from GEP.cage.model import build_pretrain_model_cage
 from COP.hic.model import build_pretrain_model_hic
 from COP.microc.model import build_pretrain_model_microc
@@ -29,6 +30,21 @@ def parser_args():
 def get_args():
     args,_ = parser_args()
     return args,_
+
+def parser_args_epi_track(parent_parser):
+    """
+    Hyperparameters for the downstream model to predict 1kb-resolution CAGE-seq
+    """
+    parser=argparse.ArgumentParser(parents=[parent_parser],add_help = False)
+    parser.add_argument('--bins', type=int, default=500)
+    parser.add_argument('--crop', type=int, default=50)
+    parser.add_argument('--pretrain_path', type=str, default='none')
+    parser.add_argument('--embed_dim', default=768, type=int)
+    parser.add_argument('--fine_tune', default=False, action='store_true')
+    parser.add_argument('--return_embed', default=False, action='store_true')
+    args, unknown = parser.parse_known_args()
+    return args
+
 
 def parser_args_cage(parent_parser):
     """
@@ -73,6 +89,7 @@ def parser_args_microc(parent_parser):
     return args
 
 args,parser = get_args()
+epi_track_args=parser_args_epi_track(parser)
 cage_args=parser_args_cage(parser)
 hic_args=parser_args_hic(parser)
 microc_args=parser_args_microc(parser)
@@ -207,6 +224,20 @@ def load_pre_training_model(
     pretrain_model.to(device)
     return pretrain_model
 
+def load_epi_track_model(
+        saved_model_path,
+        device
+):
+    track_model = build_track_model(epi_track_args)
+    model_dict = track_model.state_dict()
+    pretrain_dict = torch.load(saved_model_path, map_location='cpu')
+    pretrain_dict = {k: v for k, v in pretrain_dict.items() if k in model_dict}
+    model_dict.update(pretrain_dict)
+    track_model.load_state_dict(model_dict)
+    track_model.eval()
+    track_model.to(device)
+    return track_model
+
 def load_cage_model(
         saved_model_path,
         device
@@ -298,6 +329,30 @@ def predict_epis(
         pred_epi = torch.sigmoid(model(inputs))
     pred_epi = pred_epi.detach().cpu().numpy()
     return pred_epi
+
+def predict_track(
+        model,
+        chrom,start,end,
+        dnase,
+        fasta_extractor,
+        cross_cell_type=False
+    ):
+    if (end-start)!=400000:
+        raise ValueError('Please input a 400kb region')
+    input_dnase = read_dnase_pickle(dnase, chrom[3:])
+    input_start, input_end = start - 50000, end + 50000
+    inputs=generate_input(fasta_extractor,chrom,input_start, input_end, input_dnase)
+    device = next(model.parameters()).device
+    inputs=inputs.unsqueeze(0).float().to(device)
+    if cross_cell_type:
+        for m in model.modules():
+            if m.__class__.__name__.startswith('BatchNorm'):
+                m.train()
+    with torch.no_grad():
+        pred_hic = model(inputs).detach().cpu().numpy().squeeze()
+    pred_hic=complete_mat(arraytouptri(pred_hic.squeeze(), hic_args))
+    return pred_hic
+
 
 def predict_cage(
         model,
