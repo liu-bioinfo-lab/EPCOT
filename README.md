@@ -31,12 +31,8 @@ pip install -r requirements.txt
 Please go to the directory [Input/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/Input) for how to generate the inputs to EPCOT (one-hot repsentations of DNA sequences and normalized DNase-seq).  All the human data used in EPCOT are in reference genome hg38 and the data processing codes are also for hg38 version.
 
 ### Download the pre-training model and downstream models
-You can download our pre-training model trained on DNA sequence and DNase-seq or ATAC-seq from Google Drive or [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7456292.svg)](https://doi.org/10.5281/zenodo.7456292)
-```
-# download from Google Drive
-pip install gdown
-gdown 1_YfpNSv-2ABQV2qSyBxem-y7aJFyRNzz --output pretrain_dnase.pt
-```
+You can download EPCOT models trained on DNA sequence and DNase-seq or ATAC-seq from [Google Drive](https://drive.google.com/drive/folders/1gsveyTgYwlXK5Ntnx5nLKSzIW3JvxLse?usp=share_link) or [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7456292.svg)](https://doi.org/10.5281/zenodo.7456292)
+
 
 For the trained downstream models and how to train downstream models from scratch, you can go to each correspoding directory [GEP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/GEP), [COP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/COP), and [EAP/](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EAP).
 
