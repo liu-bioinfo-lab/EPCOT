@@ -28,7 +28,7 @@ bamCoverage --bam GM12878.bam -o GM12878_dnase.bigWig --outFileFormat bigwig --n
 python dnase_processing.py GM12878_dnase.bigWig
 ```
 
-For ATAC-seq, the bam files were downsampled to around 20-30M using Picard's DownsampleSam [https://gatk.broadinstitute.org/hc/en-us/articles/360037056792-DownsampleSam-Picard-](DownsampleSam) and then were converted to bigWig files using RPGC normalization
+For ATAC-seq, the bam files were downsampled to around 20-30M using Picard's DownsampleSam ([https://gatk.broadinstitute.org/hc/en-us/articles/360037056792-DownsampleSam-Picard-](DownsampleSam)) and then were converted to bigWig files using RPGC normalization
 
 ```
 bamCoverage --bam GM12878.bam -o GM12878_atac.bigWig --outFileFormat bigwig --normalizeUsing RPGC --effectiveGenomeSize 2913022398 --Offset 1 --binSize 1 --numberOfProcessors 12 --blackListFileName black_list.bed
