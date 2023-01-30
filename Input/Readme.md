@@ -1,6 +1,6 @@
 # EPCOT data inputs
 
-EPCOT takes inputs of one-hot representations of DNA sequences and DNase-seq profiles. For DNA sequence, we use the reference genome hg38 whose fasta file is downloaded from [UCSC genome browser](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/). You can use [reference_genome.py](https://github.com/zzh24zzh/EPCOT/blob/master/Data/reference_genome.py) to transform the fasta file to one-hot matrices.
+EPCOT takes inputs of one-hot representations of DNA sequences and DNA accessibility profiles. For DNA sequence, we use the reference genome hg38 whose fasta file is downloaded from [UCSC genome browser](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/). You can use [reference_genome.py](https://github.com/zzh24zzh/EPCOT/blob/master/Data/reference_genome.py) to transform the fasta file to one-hot matrices.
 ## Processing DNase-seq (or ATAC-seq)
 ### Dependencies
 * samtools (1.11)
@@ -27,4 +27,11 @@ bamCoverage --bam GM12878.bam -o GM12878_dnase.bigWig --outFileFormat bigwig --n
 ### transform bigWig to numpy sparse matrices which are saved as python dictionary structure (the keys are chromosomes)
 python dnase_processing.py GM12878_dnase.bigWig
 ```
-Some of our RPGC normalized DNase-seq profiles used in EPCOT training are available in [Google Drive](https://drive.google.com/drive/folders/1REE056hPXSTOt2nK6B6bpkwnnofAUdsE?usp=sharing). 
+
+For ATAC-seq, the bam files were downsampled to around 20-30M using Picard's DownsampleSam ([https://gatk.broadinstitute.org/hc/en-us/articles/360037056792-DownsampleSam-Picard-](DownsampleSam)) and then were converted to bigWig files using RPGC normalization
+
+```
+bamCoverage --bam GM12878.bam -o GM12878_atac.bigWig --outFileFormat bigwig --normalizeUsing RPGC --effectiveGenomeSize 2913022398 --Offset 1 --binSize 1 --numberOfProcessors 12 --blackListFileName black_list.bed
+```
+
+Some of the normalized DNase-seq or ATAC-seq profiles used in EPCOT training are available in [Google Drive](https://drive.google.com/drive/folders/1gsveyTgYwlXK5Ntnx5nLKSzIW3JvxLse?usp=share_link). 
