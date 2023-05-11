@@ -10,7 +10,7 @@ To help users to predict other genomic modalities from ATAC-seq, we have prepare
 <a target="_blank" href="https://colab.research.google.com/github/liu-bioinfo-lab/EPCOT/blob/main/gradio.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
-and a [webpage](https://liu-bioinfo-lab.github.io/EPCOT_APP.github.io/).
+and a webpage [https://liu-bioinfo-lab.github.io/EPCOT_APP.github.io/](https://liu-bioinfo-lab.github.io/EPCOT_APP.github.io/).
 
 
 
