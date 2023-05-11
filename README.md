@@ -48,7 +48,7 @@ For the trained downstream models and how to train downstream models from scratc
 
 
 ### Tutorial
-We prepare a Google Colab Notebook [EPCOT_usage.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb) to introduce how to use EPCOT to predict multiple modalities, and provide a Google Colab Notebook [sequence_pattern.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/Data/sequence_pattern.ipynb) to introduce how to generate sequence patterns for TFs of interest.
+We prepare a Google Colab Notebook [EPCOT_usage.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb) to introduce how to use EPCOT to predict multiple modalities.
 
-### Documents and webpages
+### Other materials
 We prepare a [GitHub page](https://zzh24zzh.github.io/epcot.github.io/) to share our TF sequence binding patterns along with Tomtom motif comparison results, and we also summarize the results in an EXCEL file [motif_comparison_summary.xls](https://github.com/liu-bioinfo-lab/EPCOT/blob/main/Data/motif_comparison_summary.xls).
