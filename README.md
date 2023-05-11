@@ -48,7 +48,7 @@ For the trained downstream models and how to train downstream models from scratc
 
 
 ### Tutorial
-We prepare a Google Colab Notebook [<u>EPCOT_usage.ipynb </u>](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb)
+We prepare a Google Colab Notebook [EPCOT_usage.ipynb](https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb)
 <a target="_blank" href="https://github.com/liu-bioinfo-lab/EPCOT/tree/main/EPCOT_usage.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
