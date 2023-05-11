@@ -7,7 +7,9 @@
 EPCOT (comprehensively predicting <ins>EP</ins>igenome, <ins>C</ins>hromatin <ins>O</ins>rganization and <ins>T</ins>ranscription) is a comprehensive model to jointly predict epigenomic features, gene expression, high-resolution chromatin contact maps, and enhancer activities from DNA sequence and cell-type specific chromatin accessibility data. 
 
 To help users to predict other genomic modalities from ATAC-seq, we have prepared a Google Colab notebook 
+
 <a href=\"https://colab.research.google.com/github/liu-bioinfo-lab/EPCOT/blob/main/gradio.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a> 
+
 and a webpage 
 
 <img
