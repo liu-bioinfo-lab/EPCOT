@@ -8,9 +8,13 @@ EPCOT (comprehensively predicting <ins>EP</ins>igenome, <ins>C</ins>hromatin <in
 
 To help users to predict other genomic modalities from ATAC-seq, we have prepared a Google Colab notebook 
 
-<a href=\"https://colab.research.google.com/github/liu-bioinfo-lab/EPCOT/blob/main/gradio.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a> 
+<!-- <a href=\"https://colab.research.google.com/github/liu-bioinfo-lab/EPCOT/blob/main/gradio.ipynb\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>  -->
 
 and a webpage 
+
+<a target="_blank" href="https://colab.research.google.com/github/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/model_monitoring/model_monitoring.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 <img
   src="Data/model.png"
